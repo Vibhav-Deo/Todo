@@ -53,6 +53,8 @@ namespace Todo.Web
             var messageBusSettings = Configuration.GetSection("MessageBus");
             services.AddMassTransit(massTransitConfig =>
             {
+                massTransitConfig.AddConsumer<TodoListCommandHandler>();
+                massTransitConfig.AddConsumer<TodoListEventConsumer>();
                 massTransitConfig.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
                     cfg.Host(new Uri(messageBusSettings["Url"]), h =>
@@ -61,8 +63,7 @@ namespace Todo.Web
                         h.Password(messageBusSettings["Password"]);
                     });
 
-                    massTransitConfig.AddConsumer<TodoListCommandHandler>();
-                    massTransitConfig.AddConsumer<TodoListEventConsumer>();
+            
                     cfg.ReceiveEndpoint("TodoList.MessageQueue", rabbitMqConfig =>
                     {
                         rabbitMqConfig.Bind("TodoList.MessageQueue.Bind", x =>

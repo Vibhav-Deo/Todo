@@ -34,8 +34,8 @@ namespace Todo.Web.Controllers
         public async Task<IEnumerable<WeatherForecast>> Get()
         {
             var rng = new Random();
-            //await _bus.Send(new TodoListCommand());
-            await _bus.Publish(new TodoListCreatedEvent());
+            await _bus.Send(new TodoListCommand());
+            //await _bus.Publish(new TodoListCreatedEvent());
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
