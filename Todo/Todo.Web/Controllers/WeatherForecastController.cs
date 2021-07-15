@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Todo.Backend.TodoList.CommandHandlers;
-using Todo.Backend.TodoList.CommandHandlers.Commands;
+using Todo.Contracts.Commands;
 using Todo.Contracts.Events;
 
 namespace Todo.Web.Controllers

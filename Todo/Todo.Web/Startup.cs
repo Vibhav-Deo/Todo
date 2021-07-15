@@ -16,8 +16,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Todo.Backend.Todo.EventConsumers;
 using Todo.Backend.TodoList.CommandHandlers;
-using Todo.Backend.TodoList.CommandHandlers.Commands;
 using Todo.Backend.TodoList.Services;
+using Todo.Contracts.Commands;
 using Todo.Contracts.Events;
 using Todo.Web.Services;
 
@@ -37,53 +37,50 @@ namespace Todo.Web
         {
             Assembly.Load("Todo.Backend");
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name.Equals("Todo.Backend"));
-            //TODO: Findout how to register event consumers and command handlers dynamically
-            /*            var eventConsumers = assembly.GetExportedTypes().Where(type => type.Name.Contains("EventConsumer") && type.IsClass).ToArray();
-                        var commandHandlers = assembly.GetExportedTypes().Where(type => type.Name.Contains("CommandHandler") && type.IsClass).ToArray();
-            foreach (var consumer in eventConsumers)
-            {
-                massTransitConfig.AddConsumer(consumer);
-            }
-
-            foreach (var handler in commandHandlers)
-            {
-                massTransitConfig.AddConsumer(handler);
-            }*/
+            var eventConsumers = assembly.GetExportedTypes().Where(type => type.Name.Contains("EventConsumer") && type.IsClass).ToArray();
+            var commandHandlers = assembly.GetExportedTypes().Where(type => type.Name.Contains("CommandHandler") && type.IsClass).ToArray();
 
             var messageBusSettings = Configuration.GetSection("MessageBus");
             services.AddMassTransit(massTransitConfig =>
             {
-                massTransitConfig.AddConsumer<TodoListCommandHandler>();
-                massTransitConfig.AddConsumer<TodoListEventConsumer>();
-                massTransitConfig.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
+                foreach (var consumer in eventConsumers)
                 {
-                    cfg.Host(new Uri(messageBusSettings["Url"]), h =>
+                    massTransitConfig.AddConsumer(consumer);
+                }
+
+                foreach (var handler in commandHandlers)
+                {
+                    massTransitConfig.AddConsumer(handler);
+                }
+
+                massTransitConfig.UsingRabbitMq((context, rabbitMqConfig) =>
+                {
+                    rabbitMqConfig.ConfigureEndpoints(context);
+                    rabbitMqConfig.PurgeOnStartup = true;
+                    rabbitMqConfig.Host(new Uri(messageBusSettings["Url"]), h =>
                     {
                         h.Username(messageBusSettings["Username"]);
                         h.Password(messageBusSettings["Password"]);
                     });
-
-            
-                    cfg.ReceiveEndpoint("TodoList.MessageQueue", rabbitMqConfig =>
+                    rabbitMqConfig.ReceiveEndpoint("TodoList.MessageQueue", cfg =>
                     {
-                        rabbitMqConfig.Bind("TodoList.MessageQueue.Bind", x =>
+                        foreach (var consumer in eventConsumers)
                         {
-                            x.ExchangeType = ExchangeType.Topic;
+                            cfg.ConfigureConsumer(context, consumer);
+                        }
 
-                            // route all exchange messages to our queue
-                            x.RoutingKey = "#";
-                        });
-
-                        rabbitMqConfig.ConfigureConsumer<TodoListCommandHandler>(provider);
-                        rabbitMqConfig.ConfigureConsumer<TodoListEventConsumer>(provider);
-                        EndpointConvention.Map<TodoListCommand>(rabbitMqConfig.InputAddress);
+                        foreach (var handler in commandHandlers)
+                        {
+                            cfg.ConfigureConsumer(context, handler);
+                        }
+                        EndpointConvention.Map<TodoListCommand>(cfg.InputAddress);
                     });
-                }));
+                });
             });
             services.AddSingleton<IHostedService, BusService>();
             services.AddMassTransitHostedService();
             var classes = assembly.GetExportedTypes().Where(type => type.Name.Contains("ReadService") && type.IsClass);
-            foreach(var type in classes)
+            foreach (var type in classes)
             {
                 services.AddScoped(type.GetInterface($"I{type.Name}"), type);
             }

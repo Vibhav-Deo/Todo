@@ -1,7 +1,7 @@
 ﻿using MassTransit;
 using System;
 using System.Threading.Tasks;
-using Todo.Backend.TodoList.CommandHandlers.Commands;
+using Todo.Contracts.Commands;
 
 namespace Todo.Backend.TodoList.CommandHandlers
 {
@@ -9,7 +9,7 @@ namespace Todo.Backend.TodoList.CommandHandlers
     {
         public Task Consume(ConsumeContext<TodoListCommand> context)
         {
-            throw new NotImplementedException();
+            return Task.FromResult("ALl good");
         }
     }
 }

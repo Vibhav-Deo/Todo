@@ -12,4 +12,14 @@
     <ProjectReference Include="..\Todo.Contracts\Todo.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TodoList\Repositories\Write\" />
+    <Folder Include="TodoList\Repositories\Read\" />
+    <Folder Include="User\CommandHhandler\" />
+    <Folder Include="User\EventConsumer\" />
+    <Folder Include="User\Services\" />
+    <Folder Include="User\Repositories\Write\" />
+    <Folder Include="User\Repositories\Read\" />
+  </ItemGroup>
+
 </Project>

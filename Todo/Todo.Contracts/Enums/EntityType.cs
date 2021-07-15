@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Todo.Backend.TodoList.CommandHandlers.Commands
+namespace Todo.Contracts.Enums
 {
-    public class TodoListCommand
+    public enum EntityType
     {
+        User = 1,
+        TodoList = 2,
+        TodoListItem = 3
     }
 }
