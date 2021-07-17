@@ -1,25 +1,18 @@
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using RabbitMQ.Client;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Todo.Backend.Todo.EventConsumers;
-using Todo.Backend.TodoList.CommandHandlers;
-using Todo.Backend.TodoList.Services;
-using Todo.Contracts.Commands;
-using Todo.Contracts.Events;
+using Todo.Contracts.Commands.TodoList;
+using Todo.Contracts.Commands.User;
+using Todo.Database.Models;
 using Todo.Web.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Todo.Web
 {
@@ -36,9 +29,10 @@ namespace Todo.Web
         public void ConfigureServices(IServiceCollection services)
         {
             Assembly.Load("Todo.Backend");
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name.Equals("Todo.Backend"));
-            var eventConsumers = assembly.GetExportedTypes().Where(type => type.Name.Contains("EventConsumer") && type.IsClass).ToArray();
-            var commandHandlers = assembly.GetExportedTypes().Where(type => type.Name.Contains("CommandHandler") && type.IsClass).ToArray();
+            Assembly.Load("Todo.Contracts");
+            var backendAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name.Equals("Todo.Backend"));
+            var eventConsumers = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("EventConsumer") && type.IsClass).ToArray();
+            var commandHandlers = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("CommandHandler") && type.IsClass).ToArray();
 
             var messageBusSettings = Configuration.GetSection("MessageBus");
             services.AddMassTransit(massTransitConfig =>
@@ -73,13 +67,21 @@ namespace Todo.Web
                         {
                             cfg.ConfigureConsumer(context, handler);
                         }
-                        EndpointConvention.Map<TodoListCommand>(cfg.InputAddress);
+                        EndpointConvention.Map<CreateTodoListCommand>(cfg.InputAddress);
+                        EndpointConvention.Map<UpdateTodoListCommand>(cfg.InputAddress);
+                        EndpointConvention.Map<DeleteTodoListCommand>(cfg.InputAddress);
+                        EndpointConvention.Map<CreateUserCommand>(cfg.InputAddress);
+                        EndpointConvention.Map<UpdateUserCommand>(cfg.InputAddress);
+                        EndpointConvention.Map<DeleteUserCommand>(cfg.InputAddress);
                     });
                 });
             });
+
+            //Adding DB context for interacting with DB
+            services.AddDbContext<TodoListContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSingleton<IHostedService, BusService>();
             services.AddMassTransitHostedService();
-            var classes = assembly.GetExportedTypes().Where(type => type.Name.Contains("ReadService") && type.IsClass);
+            var classes = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("ReadService") && type.IsClass);
             foreach (var type in classes)
             {
                 services.AddScoped(type.GetInterface($"I{type.Name}"), type);
