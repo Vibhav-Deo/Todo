@@ -84,7 +84,7 @@ namespace Todo.Web
             }
             else
             {
-                var busConfig = Configuration.GetSection("MessageBus.BusConfig");
+                var busConfig = Configuration.GetSection("MessageBus").GetSection("BusConfig");
                 services.AddMassTransit(massTransitConfig =>
                 {
                     foreach (var consumer in eventConsumers)

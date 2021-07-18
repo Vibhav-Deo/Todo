@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Todo.Backend.TodoList.CommandHandlers;
 using Todo.Contracts.Commands;
+using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.Events;
 
 namespace Todo.Web.Controllers
@@ -34,7 +35,7 @@ namespace Todo.Web.Controllers
         public async Task<IEnumerable<WeatherForecast>> Get()
         {
             var rng = new Random();
-            //await _bus.Send(new TodoListCommand());
+            await _bus.Send(new CreateTodoListCommand());
             //await _bus.Publish(new TodoListCreatedEvent());
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
