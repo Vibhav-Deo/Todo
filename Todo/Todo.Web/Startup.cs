@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using Todo.Web.Infrastructure;
+using Todo.Database.Cosmos;
 
 namespace Todo.Web
 {
@@ -130,6 +131,7 @@ namespace Todo.Web
 
             //Adding DB context for interacting with DB
             services.AddDbContext<TodoListContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddSingleton(provider => new CosmosDbContext(Configuration.GetSection("CosmosCredentials")["Key"], Configuration.GetSection("CosmosCredentials")["Url"]));
             services.AddSingleton<IHostedService, BusService>();
             services.AddMassTransitHostedService();
             var classes = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("ReadService") && type.IsClass);
