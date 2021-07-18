@@ -22,4 +22,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Todo.Contracts\Todo.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -13,7 +13,7 @@ namespace Todo.Web.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : BaseController
+    public class WeatherForecastController : BaseApiController
     {
         private static readonly string[] Summaries = new[]
         {
