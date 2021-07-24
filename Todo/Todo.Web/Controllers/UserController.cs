@@ -101,10 +101,10 @@ namespace Todo.Web.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route(ApiRoutes.User.REGISTER)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [Produces(typeof(UserResponse))]
+        [Produces(typeof(string))]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] UserRegisterationRequest request)
         {
@@ -119,16 +119,8 @@ namespace Todo.Web.Controllers
                 _mapper.Map(request, createUserCommand);
 
                 await _bus.Publish(createUserCommand);
-                
-                var registerUserReponse = await _userReadService.GetUserByEmail(new GetUserByEmailRequest { 
-                Email = request.Email
-                });
 
-                var userResponse = new UserResponse();
-
-                _mapper.Map(registerUserReponse.User, userResponse);
-
-                return Created(userResponse);
+                return Success(StringResources.UserRegisterationSuccessful);
 
             }, StringResources.GeneralError);
         }

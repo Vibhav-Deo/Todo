@@ -131,5 +131,14 @@ namespace Todo.Contracts.StringResources {
                 return ResourceManager.GetString("UserNotFound", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User Registeration successfull.
+        /// </summary>
+        public static string UserRegisterationSuccessful {
+            get {
+                return ResourceManager.GetString("UserRegisterationSuccessful", resourceCulture);
+            }
+        }
     }
 }

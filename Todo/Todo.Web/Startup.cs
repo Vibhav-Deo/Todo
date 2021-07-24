@@ -6,12 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Linq;
-using System.Reflection;
-using Todo.Contracts.Commands.TodoList;
-using Todo.Contracts.Commands.User;
 using Todo.Database.Models;
-using Todo.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -28,8 +23,9 @@ using Todo.Backend.TodoList.CommandHandler;
 using Todo.Backend.User.Services;
 using Todo.Backend.User.Repository;
 using Todo.Backend.User.Repositories.Write;
-using Todo.Contracts.Events.User;
-using RabbitMQ.Client;
+using Todo.Backend.TodoList.Services;
+using Todo.Backend.TodoList.Repositories.Read;
+using Todo.Backend.TodoList.Repositories.Write;
 
 namespace Todo.Web
 {
@@ -52,31 +48,37 @@ namespace Todo.Web
             {
                 services.AddMassTransit(massTransitConfig =>
                 {
-/*                    massTransitConfig.AddConsumer<UserEventConsumer>();
+                    massTransitConfig.AddConsumer<UserEventConsumer>();
                     massTransitConfig.AddConsumer<UserCommandHandler>();
                     massTransitConfig.AddConsumer<TodoListEventConsumer>();
-                    massTransitConfig.AddConsumer<TodoListCommandHandler>();*/
+                    massTransitConfig.AddConsumer<TodoListCommandHandler>();
 
                     massTransitConfig.UsingInMemory((context, cfg) =>
                     {
 
-                        cfg.TransportConcurrencyLimit = 100;
-                        cfg.PrefetchCount = 10;
+                        cfg.ReceiveEndpoint(nameof(UserEventConsumer), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<UserEventConsumer>(context);
+                        });
 
-                        cfg.ReceiveEndpoint("TodoList.MessageQueue", cfg =>
-                         {
-                             cfg.ConfigureConsumer(context, typeof(UserEventConsumer));
-                             cfg.ConfigureConsumer(context, typeof(UserCommandHandler));
-                             cfg.ConfigureConsumer(context, typeof(TodoListEventConsumer));
-                             cfg.ConfigureConsumer(context, typeof(TodoListCommandHandler));
+                        cfg.ReceiveEndpoint(nameof(UserCommandHandler), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<UserCommandHandler>(context);
+                        });
 
-                             EndpointConvention.Map<CreateTodoListCommand>(cfg.InputAddress);
-                             EndpointConvention.Map<UpdateTodoListCommand>(cfg.InputAddress);
-                             EndpointConvention.Map<DeleteTodoListCommand>(cfg.InputAddress);
-                             EndpointConvention.Map<CreateUserCommand>(cfg.InputAddress);
-                             EndpointConvention.Map<UpdateUserCommand>(cfg.InputAddress);
-                             EndpointConvention.Map<DeleteUserCommand>(cfg.InputAddress);
-                         });
+                        cfg.ReceiveEndpoint(nameof(TodoListEventConsumer), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<TodoListEventConsumer>(context);
+                        });
+
+                        cfg.ReceiveEndpoint(nameof(TodoListCommandHandler), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<TodoListCommandHandler>(context);
+                        });
                     });
                 });
             }
@@ -128,12 +130,20 @@ namespace Todo.Web
 
             //Adding DB context for interacting with DB
             services.AddDbContext<TodoListContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddSingleton(provider => new CosmosDbContext(Configuration.GetSection("CosmosCredentials")["Key"], Configuration.GetSection("CosmosCredentials")["Url"]));
+            services.AddSingleton(provider =>
+            {
+                var cosmosCredentials = Configuration.GetSection("CosmosCredentials");
+                return new CosmosDbContext(cosmosCredentials["Key"], cosmosCredentials["Url"]);
+            });
             services.AddMassTransitHostedService();
             
             services.AddScoped<IUserReadService,UserReadService>();
             services.AddScoped<IUserReadRepository, UserReadRepository>();
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
+
+            services.AddScoped<ITodoListReadService, TodoListReadService>();
+            services.AddScoped<ITodoListReadRepository, TodoListReadRepository>();
+            services.AddScoped<ITodoListWriteRepository, TodoListWriteRepository>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

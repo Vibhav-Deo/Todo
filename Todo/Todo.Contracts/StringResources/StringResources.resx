@@ -141,4 +141,7 @@
   <data name="UserNotFound" xml:space="preserve">
     <value>This user cannot be found.</value>
   </data>
+  <data name="UserRegisterationSuccessful" xml:space="preserve">
+    <value>User Registeration successfull</value>
+  </data>
 </root>

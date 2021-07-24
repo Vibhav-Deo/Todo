@@ -57,7 +57,7 @@ namespace Todo.Backend.User.CommandHandler
 
                 using (var transactionScope = new TransactionScope())
                 {
-/*                    await _userWriteRepository.RegisterUserAsync(new Models.User
+                    await _userWriteRepository.RegisterUserAsync(new Models.User
                     {
                         Id = userId,
                         City = command.City,
@@ -72,7 +72,7 @@ namespace Todo.Backend.User.CommandHandler
                         Postcode = command.Postcode,
                         Street = command.Street,
                         PasswordHash = sb.ToString()
-                    });*/
+                    });
                     transactionScope.Complete();
                 }
 

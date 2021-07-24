@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TodoList\Repositories\Write\" />
-    <Folder Include="TodoList\Repositories\Read\" />
+    <Folder Include="TodoList\Services\RequestResponse\" />
   </ItemGroup>
 
 </Project>
