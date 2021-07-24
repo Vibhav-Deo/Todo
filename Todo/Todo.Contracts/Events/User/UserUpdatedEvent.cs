@@ -9,19 +9,21 @@ namespace Todo.Contracts.Events.User
 {
     public class UserUpdatedEvent : IBaseEvent
     {
-        public Guid EntityModifiedId { get; }
+        public string Id { get; }
         public string Message { get; }
         public string EntityThatTookAction { get; }
         public DateTimeOffset CreatedOn { get; }
         public EntityType EntityType { get; }
+        public Guid CorrelationId { get; set; }
 
-        public UserUpdatedEvent(Guid entityId, string entity, EntityType entityType, DateTimeOffset createdOn)
+        public UserUpdatedEvent(string entityId, string entity, EntityType entityType, Guid correlationId,DateTimeOffset createdOn)
         {
-            EntityModifiedId = entityId;
+            Id = entityId;
             EntityThatTookAction = entity;
             CreatedOn = createdOn;
             EntityType = entityType;
-            Message = "User list updated";
+            CorrelationId = correlationId;
+            Message = "User account updated";
         }
     }
 }

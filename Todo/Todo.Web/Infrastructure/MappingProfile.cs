@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Todo.Contracts.Commands.User;
+using Todo.Database.Models;
+using Todo.Web.RequestResponse.User;
 
 namespace Todo.Web.Infrastructure
 {
@@ -11,7 +14,8 @@ namespace Todo.Web.Infrastructure
         public MappingProfile()
         {
             // Add as many of these lines as you need to map your objects
-            //CreateMap<UserRegisterationRequest, RegisterUserRequest>();
+            CreateMap<UserRegisterationRequest, CreateUserCommand>();
+            CreateMap<User, UserResponse>();
         }
     }
 }

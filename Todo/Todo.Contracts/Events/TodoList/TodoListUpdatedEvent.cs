@@ -6,19 +6,20 @@ namespace Todo.Contracts.Events.TodoList
 {
     public class TodoListUpdatedEvent : IBaseEvent
     {
-        public Guid EntityModifiedId { get; }
-        public string Message { get; }
-        public string EntityThatTookAction { get; }
-        public DateTimeOffset CreatedOn { get; }
+        public string Id { get; set; }
+        public string Message { get; set; }
+        public string EntityThatTookAction { get; set; }
+        public DateTimeOffset CreatedOn { get; set; }
+        public EntityType EntityType { get; set; }
+        public Guid CorrelationId { get; set; }
 
-        public EntityType EntityType { get; }
-
-        public TodoListUpdatedEvent(Guid entityId, string entity, EntityType entityType,DateTimeOffset createdOn)
+        public TodoListUpdatedEvent(string entityId, string entity, EntityType entityType, Guid correlationId, DateTimeOffset createdOn)
         {
-            EntityModifiedId = entityId;
+            Id = entityId;
             EntityThatTookAction = entity;
             CreatedOn = createdOn;
             EntityType = entityType;
+            CorrelationId = correlationId;
             Message = "Todo list updated";
         }
     }

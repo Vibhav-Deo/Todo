@@ -1,7 +1,10 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Threading.Tasks;
+using Todo.Contracts.Events;
+using Todo.Contracts.Events.User;
 
 namespace Todo.Database.Cosmos
 {
@@ -23,7 +26,16 @@ namespace Todo.Database.Cosmos
 
         public CosmosDbContext(string key, string endpointUrl)
         {
-            CosmosClient = new CosmosClient(endpointUrl, key, new CosmosClientOptions() { ApplicationName = "Todo" });
+            var options = new CosmosClientOptions()
+            {
+                ApplicationName = "Todo",
+                SerializerOptions = new CosmosSerializationOptions()
+                {
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                },
+                EnableContentResponseOnWrite = true
+            };
+            CosmosClient = new CosmosClient(endpointUrl, key, options);
             DatabaseId = "Event";
             Task.Run(async () => await CreateCosmosDbAsync()).GetAwaiter().GetResult();
             Task.Run(async () => await CreateContainerAsync()).GetAwaiter().GetResult();
@@ -38,14 +50,25 @@ namespace Todo.Database.Cosmos
         public  async Task CreateContainerAsync()
         {
             // Create a new container
-            Container = await Database.CreateContainerIfNotExistsAsync(ContainerId, "/LastName", 400);
+            Container = await Database.CreateContainerIfNotExistsAsync(ContainerId, "/correlationId", 400);
         }
 
-        public async Task<ItemResponse<string>> CreateItemAsync<T>(T data)
+        public async Task<ItemResponse<T>> CreateItemAsync<T>(T data)
         {
-            var dataToWrite = JsonConvert.SerializeObject(data);
-            var partitionKey = JObject.Parse(dataToWrite)["EntityId"].ToString();
-            return await Container.CreateItemAsync(dataToWrite, new PartitionKey(partitionKey));
+            try
+            {
+                var correlationId = JObject.Parse(JsonConvert.SerializeObject(data))["CorrelationId"];
+                if(correlationId.Equals(Guid.Empty))
+                {
+                    throw new NullReferenceException("Id cannot be null");
+                }
+                var itemResponse = await Container.CreateItemAsync(data, new PartitionKey(correlationId.ToString()));
+                return itemResponse;
+            }
+            catch(Exception)
+            {
+                throw;
+            }
         }
 
         public async Task<ItemResponse<T>> ReadItemAsync<T>(string id, string partitionKey)

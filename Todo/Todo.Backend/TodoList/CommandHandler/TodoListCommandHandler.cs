@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Todo.Contracts.Commands;
 using Todo.Contracts.Commands.TodoList;
 
-namespace Todo.Backend.TodoList.CommandHandlers
+namespace Todo.Backend.TodoList.CommandHandler
 {
     public class TodoListCommandHandler : IConsumer<CreateTodoListCommand>, IConsumer<UpdateTodoListCommand>, IConsumer<DeleteTodoListCommand>
     {

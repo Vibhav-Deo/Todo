@@ -63,6 +63,8 @@ namespace Todo.Database.Models
                 entity.Property(e => e.Street).HasMaxLength(50);
 
                 entity.Property(e => e.UserName).HasMaxLength(50);
+
+                entity.Property(e => e.Role).HasConversion<int>();
             });
 
             OnModelCreatingPartial(modelBuilder);

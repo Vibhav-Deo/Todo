@@ -20,6 +20,16 @@ using System.Text.Json;
 using AutoMapper;
 using Todo.Web.Infrastructure;
 using Todo.Database.Cosmos;
+using Todo.Web.TokenManager;
+using Todo.Backend.User.EventConsumer;
+using Todo.Backend.User.CommandHandler;
+using Todo.Backend.Todo.EventConsumers;
+using Todo.Backend.TodoList.CommandHandler;
+using Todo.Backend.User.Services;
+using Todo.Backend.User.Repository;
+using Todo.Backend.User.Repositories.Write;
+using Todo.Contracts.Events.User;
+using RabbitMQ.Client;
 
 namespace Todo.Web
 {
@@ -35,44 +45,31 @@ namespace Todo.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Assembly.Load("Todo.Backend");
-            Assembly.Load("Todo.Contracts");
-            var backendAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name.Equals("Todo.Backend"));
-            var eventConsumers = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("EventConsumer") && type.IsClass).ToArray();
-            var commandHandlers = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("CommandHandler") && type.IsClass).ToArray();
 
-            var busType = Configuration.GetSection("MessageBus")["Type"];
+            var messageBusConfig = Configuration.GetSection("MessageBus");
+            var busType = messageBusConfig["Type"];
             if(busType.ToLower().Equals("inmemory"))
             {
                 services.AddMassTransit(massTransitConfig =>
                 {
-                    foreach (var consumer in eventConsumers)
-                    {
-                        massTransitConfig.AddConsumer(consumer);
-                    }
-
-                    foreach (var handler in commandHandlers)
-                    {
-                        massTransitConfig.AddConsumer(handler);
-                    }
+/*                    massTransitConfig.AddConsumer<UserEventConsumer>();
+                    massTransitConfig.AddConsumer<UserCommandHandler>();
+                    massTransitConfig.AddConsumer<TodoListEventConsumer>();
+                    massTransitConfig.AddConsumer<TodoListCommandHandler>();*/
 
                     massTransitConfig.UsingInMemory((context, cfg) =>
                     {
-                        cfg.TransportConcurrencyLimit = 100;
 
-                        cfg.ConfigureEndpoints(context);
+                        cfg.TransportConcurrencyLimit = 100;
+                        cfg.PrefetchCount = 10;
 
                         cfg.ReceiveEndpoint("TodoList.MessageQueue", cfg =>
                          {
-                             foreach (var consumer in eventConsumers)
-                             {
-                                 cfg.ConfigureConsumer(context, consumer);
-                             }
+                             cfg.ConfigureConsumer(context, typeof(UserEventConsumer));
+                             cfg.ConfigureConsumer(context, typeof(UserCommandHandler));
+                             cfg.ConfigureConsumer(context, typeof(TodoListEventConsumer));
+                             cfg.ConfigureConsumer(context, typeof(TodoListCommandHandler));
 
-                             foreach (var handler in commandHandlers)
-                             {
-                                 cfg.ConfigureConsumer(context, handler);
-                             }
                              EndpointConvention.Map<CreateTodoListCommand>(cfg.InputAddress);
                              EndpointConvention.Map<UpdateTodoListCommand>(cfg.InputAddress);
                              EndpointConvention.Map<DeleteTodoListCommand>(cfg.InputAddress);
@@ -85,45 +82,45 @@ namespace Todo.Web
             }
             else
             {
-                var busConfig = Configuration.GetSection("MessageBus").GetSection("BusConfig");
+                var busConfig = messageBusConfig.GetSection("BusConfig");
+
                 services.AddMassTransit(massTransitConfig =>
                 {
-                    foreach (var consumer in eventConsumers)
-                    {
-                        massTransitConfig.AddConsumer(consumer);
-                    }
-
-                    foreach (var handler in commandHandlers)
-                    {
-                        massTransitConfig.AddConsumer(handler);
-                    }
+                    massTransitConfig.AddConsumer<UserEventConsumer>();
+                    massTransitConfig.AddConsumer<UserCommandHandler>();
+                    massTransitConfig.AddConsumer<TodoListEventConsumer>();
+                    massTransitConfig.AddConsumer<TodoListCommandHandler>();
 
                     massTransitConfig.UsingRabbitMq((context, rabbitMqConfig) =>
                     {
-                        rabbitMqConfig.ConfigureEndpoints(context);
-                        rabbitMqConfig.PurgeOnStartup = true;
                         rabbitMqConfig.Host(new Uri(busConfig["Url"]), h =>
                         {
                             h.Username(busConfig["Username"]);
                             h.Password(busConfig["Password"]);
                         });
-                        rabbitMqConfig.ReceiveEndpoint("TodoList.MessageQueue", cfg =>
-                        {
-                            foreach (var consumer in eventConsumers)
-                            {
-                                cfg.ConfigureConsumer(context, consumer);
-                            }
 
-                            foreach (var handler in commandHandlers)
-                            {
-                                cfg.ConfigureConsumer(context, handler);
-                            }
-                            EndpointConvention.Map<CreateTodoListCommand>(cfg.InputAddress);
-                            EndpointConvention.Map<UpdateTodoListCommand>(cfg.InputAddress);
-                            EndpointConvention.Map<DeleteTodoListCommand>(cfg.InputAddress);
-                            EndpointConvention.Map<CreateUserCommand>(cfg.InputAddress);
-                            EndpointConvention.Map<UpdateUserCommand>(cfg.InputAddress);
-                            EndpointConvention.Map<DeleteUserCommand>(cfg.InputAddress);
+                        rabbitMqConfig.ReceiveEndpoint(nameof(UserEventConsumer), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<UserEventConsumer>(context);
+                        });
+
+                        rabbitMqConfig.ReceiveEndpoint(nameof(UserCommandHandler), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<UserCommandHandler>(context);
+                        });
+
+                        rabbitMqConfig.ReceiveEndpoint(nameof(TodoListEventConsumer), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<TodoListEventConsumer>(context);
+                        });
+
+                        rabbitMqConfig.ReceiveEndpoint(nameof(TodoListCommandHandler), cfg =>
+                        {
+                            cfg.PrefetchCount = 10;
+                            cfg.ConfigureConsumer<TodoListCommandHandler>(context);
                         });
                     });
                 });
@@ -132,13 +129,12 @@ namespace Todo.Web
             //Adding DB context for interacting with DB
             services.AddDbContext<TodoListContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSingleton(provider => new CosmosDbContext(Configuration.GetSection("CosmosCredentials")["Key"], Configuration.GetSection("CosmosCredentials")["Url"]));
-            services.AddSingleton<IHostedService, BusService>();
             services.AddMassTransitHostedService();
-            var classes = backendAssembly.GetExportedTypes().Where(type => type.Name.Contains("ReadService") && type.IsClass);
-            foreach (var type in classes)
-            {
-                services.AddScoped(type.GetInterface($"I{type.Name}"), type);
-            }
+            
+            services.AddScoped<IUserReadService,UserReadService>();
+            services.AddScoped<IUserReadRepository, UserReadRepository>();
+            services.AddScoped<IUserWriteRepository, UserWriteRepository>();
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -168,24 +164,25 @@ namespace Todo.Web
             });
 
             //Get Token config from the model. TODO: Decide wheather TokenConfig should be in infrastructure or should be moved to models.
-            var jwtTokenConfig = Configuration.GetSection("TokenConfig");
+            var jwtTokenConfig = Configuration.GetSection("TokenConfig").Get<TokenConfig>();
+            services.AddSingleton<ITokenManager, TokenManager.TokenManager>();
             services.AddSingleton(jwtTokenConfig);
             //Add authentication scheme for JWT.
-            services.AddAuthentication(x =>
+            services.AddAuthentication(authConfig =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
+                authConfig.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                authConfig.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(jwtConfig =>
             {
-                x.RequireHttpsMetadata = true;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+                jwtConfig.RequireHttpsMetadata = true;
+                jwtConfig.SaveToken = true;
+                jwtConfig.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = jwtTokenConfig["Issuer"],
+                    ValidIssuer = jwtTokenConfig.Issuer,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtTokenConfig["Secret"])),
-                    ValidAudience = jwtTokenConfig["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtTokenConfig.Secret)),
+                    ValidAudience = jwtTokenConfig.Audience,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromMinutes(1)

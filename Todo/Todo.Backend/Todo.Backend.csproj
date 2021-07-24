@@ -6,20 +6,17 @@
 
   <ItemGroup>
     <PackageReference Include="MassTransit" Version="7.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Todo.Contracts\Todo.Contracts.csproj" />
+    <ProjectReference Include="..\Todo.Database\Todo.Database.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="TodoList\Repositories\Write\" />
     <Folder Include="TodoList\Repositories\Read\" />
-    <Folder Include="User\CommandHhandler\" />
-    <Folder Include="User\EventConsumer\" />
-    <Folder Include="User\Services\" />
-    <Folder Include="User\Repositories\Write\" />
-    <Folder Include="User\Repositories\Read\" />
   </ItemGroup>
 
 </Project>

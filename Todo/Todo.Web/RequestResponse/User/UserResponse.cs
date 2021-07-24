@@ -1,26 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Todo.Contracts.Enums;
 
-namespace Todo.Contracts.Commands.User
+namespace Todo.Web.RequestResponse.User
 {
-    public class CreateUserCommand : IBaseCommand
+    public class UserResponse
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public string Password { get; set; }
         public string UserName { get; set; }
         public string Street { get; set; }
         public string City { get; set; }
         public string State { get; set; }
         public string Country { get; set; }
         public string Postcode { get; set; }
-
-        public Guid CorrelationId => Guid.NewGuid();
+        public UserRoles Role { get; set; }
     }
 }

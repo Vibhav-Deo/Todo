@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Todo.Contracts.Enums;
 
 namespace Todo.Database.Models
 {
@@ -20,6 +21,6 @@ namespace Todo.Database.Models
         public string State { get; set; }
         public string Country { get; set; }
         public string Postcode { get; set; }
-        public int Role { get; set; }
+        public UserRoles Role { get; set; }
     }
 }
