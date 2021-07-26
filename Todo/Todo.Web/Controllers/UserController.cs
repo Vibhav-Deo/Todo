@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ using Todo.Backend.User.Services.RequestResponse;
 using Todo.Contracts.Api;
 using Todo.Contracts.Commands.User;
 using Todo.Contracts.StringResources;
+using Todo.Web.RequestResponse.Token;
 using Todo.Web.RequestResponse.User;
 using Todo.Web.TokenManager;
 
@@ -151,6 +153,72 @@ namespace Todo.Web.Controllers
                 return Success(userResponse);
 
             }, StringResources.GeneralError);
+        }
+
+        /// <summary>
+        /// This method is used to refresh the access token to keep the access token valid.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.User.REFRESH_TOKEN)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Produces(typeof(LoginResponse))]
+        [Authorize]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            return await MakeServiceCall(async () =>
+            {
+                var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+                var (principal, securityToken) = await _tokenManager.DecodeJwtTokenAsync(accessToken);
+
+                var email = principal.FindFirst(claim => claim.Type == ClaimTypes.Email).Value;
+
+
+                if (string.IsNullOrWhiteSpace(request.RefreshToken))
+                {
+                    return Unauthorized();
+                }
+
+                var jwtResult = await _tokenManager.RefreshAsync(request.RefreshToken, accessToken, DateTime.Now);
+
+                _logger.LogInformation($"User [{email}] has refreshed JWT token.");
+
+
+                return Success(new LoginResponse
+                {
+                    Email = email,
+                    Role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty,
+                    AccessToken = jwtResult.AccessToken,
+                    RefreshToken = jwtResult.RefreshToken.TokenString,
+                    TokenType = "Bearer"
+                });
+            }, StringResources.GeneralError);
+        }
+
+        /// <summary>
+        /// This method removes the refresh token and invalidates the login of the current logged in user. 
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route(ApiRoutes.User.LOG_OUT)]
+        [Produces(typeof(string))]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            // optionally "revoke" JWT token on the server side --> add the current token to a block-list
+            // https://github.com/auth0/node-jsonwebtoken/issues/375
+
+            return await MakeServiceCall(async () =>
+            {
+                var accessToken = await HttpContext.GetTokenAsync("Bearer", "access_token");
+
+                await _tokenManager.RemoveRefreshTokenByAccessTokenAsync(accessToken);
+
+                return Success(StringResources.LogoutSuccess);
+            }, StringResources.GeneralError);
+
         }
     }
 }

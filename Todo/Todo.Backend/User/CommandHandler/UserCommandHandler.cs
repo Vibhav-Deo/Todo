@@ -24,13 +24,11 @@ namespace Todo.Backend.User.CommandHandler
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly ILogger<UserCommandHandler> _logger;
         private readonly IBus _bus;
-        private readonly IPublishEndpoint _publishEndpoint;
-        public UserCommandHandler(IUserWriteRepository userWriteRepository, IBus bus, IPublishEndpoint publishEndpoint, ILogger<UserCommandHandler> logger)
+        public UserCommandHandler(IUserWriteRepository userWriteRepository, IBus bus, ILogger<UserCommandHandler> logger)
         {
             _userWriteRepository = userWriteRepository;
             _bus = bus;
             _logger = logger;
-            _publishEndpoint = publishEndpoint;
         }
         public async Task Consume(ConsumeContext<CreateUserCommand> context)
         {
@@ -80,8 +78,8 @@ namespace Todo.Backend.User.CommandHandler
 
                 var correlationId = context.CorrelationId ?? Guid.Empty;
                 string entityId = userId.ToString();
-                
-                var message = new UserCreatedEvent(entityId, entity, EntityType.User, correlationId ,DateTimeOffset.UtcNow);
+
+                var message = new UserCreatedEvent(entityId, entity, EntityType.User, correlationId, DateTimeOffset.UtcNow);
                 await _bus.Publish(message);
                 _logger.LogInformation("User Created Successfully");
 
