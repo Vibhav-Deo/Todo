@@ -31,9 +31,6 @@ namespace Todo.Database.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -58,7 +55,7 @@ namespace Todo.Database.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("TodoListId")
+                    b.Property<Guid>("TodoListId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -126,6 +123,24 @@ namespace Todo.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("9e997f4c-50e6-43a9-83eb-b9fe1233a8b5"),
+                            City = "Melbourne",
+                            Country = "Australia",
+                            Email = "user1test@todolist.com",
+                            FirstName = "User1",
+                            LastName = "Test",
+                            PasswordHash = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+                            PhoneNumber = "0412345678",
+                            Postcode = "3000",
+                            Role = 2,
+                            State = "Victoria",
+                            Street = "Elizabeth",
+                            UserName = "user1_test"
+                        });
                 });
 
             modelBuilder.Entity("Todo.Database.Models.TodoList", b =>
@@ -141,14 +156,13 @@ namespace Todo.Database.Migrations
 
             modelBuilder.Entity("Todo.Database.Models.TodoListItem", b =>
                 {
-                    b.HasOne("Todo.Database.Models.TodoList", null)
-                        .WithMany("Items")
-                        .HasForeignKey("TodoListId");
-                });
+                    b.HasOne("Todo.Database.Models.TodoList", "TodoList")
+                        .WithMany()
+                        .HasForeignKey("TodoListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("Todo.Database.Models.TodoList", b =>
-                {
-                    b.Navigation("Items");
+                    b.Navigation("TodoList");
                 });
 #pragma warning restore 612, 618
         }

@@ -19,6 +19,7 @@ using Todo.Web.TokenManager;
 
 namespace Todo.Web.Controllers
 {
+    [ApiController]
     public class UserController : BaseApiController
     {
         private readonly ILogger<UserController> _logger;
@@ -26,7 +27,7 @@ namespace Todo.Web.Controllers
         private readonly ITokenManager _tokenManager;
         private readonly IMapper _mapper;
         private readonly IBus _bus;
-        public UserController(ILogger<UserController> logger, IUserReadService userReadService, ITokenManager tokenManager, IBus bus,IMapper mapper)
+        public UserController(ILogger<UserController> logger, IUserReadService userReadService, ITokenManager tokenManager, IBus bus, IMapper mapper)
         {
             _logger = logger;
             _userReadService = userReadService;
@@ -121,6 +122,33 @@ namespace Todo.Web.Controllers
                 await _bus.Publish(createUserCommand);
 
                 return Success(StringResources.UserRegisterationSuccessful);
+
+            }, StringResources.GeneralError);
+        }
+
+        [HttpGet]
+        [Route(ApiRoutes.User.BY_EMAIL)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [Produces(typeof(UserResponse))]
+        [Authorize]
+        public async Task<IActionResult> GetUserByEmail([FromRoute] string userEmail)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            return await MakeServiceCall(async () =>
+            {
+                var user = await _userReadService.GetUserByEmail(new GetUserByEmailRequest
+                {
+                    Email = userEmail
+                });
+
+                var userResponse = _mapper.Map<UserResponse>(user.User);
+                return Success(userResponse);
 
             }, StringResources.GeneralError);
         }

@@ -37,6 +37,7 @@ namespace Todo.Backend.User.CommandHandler
             var command = context.Message;
             try
             {
+                _logger.LogInformation("Started consumption of " + nameof(CreateUserCommand));
                 if (await _userWriteRepository.IsExistingUserAsync(command.Email))
                 {
                     throw new Exception(StringResources.UserAlreadyRegistered);
@@ -82,10 +83,12 @@ namespace Todo.Backend.User.CommandHandler
                 
                 var message = new UserCreatedEvent(entityId, entity, EntityType.User, correlationId ,DateTimeOffset.UtcNow);
                 await _bus.Publish(message);
+                _logger.LogInformation("User Created Successfully");
 
             }
             catch (Exception exception)
             {
+                _logger.LogError(StringResources.FailedToAddUser, exception);
                 throw new TodoApplicationException(StringResources.FailedToAddUser, StatusCodes.Status500InternalServerError, exception.InnerException);
             }
         }

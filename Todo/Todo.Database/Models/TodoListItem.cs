@@ -8,5 +8,7 @@ namespace Todo.Database.Models
         public Guid Id { get; set; }
         public string Description { get; set; }
         public TodoListItemStatus Status { get; set; }
+        public Guid TodoListId { get; set; }
+        public virtual TodoList TodoList { get; set; }
     }
 }

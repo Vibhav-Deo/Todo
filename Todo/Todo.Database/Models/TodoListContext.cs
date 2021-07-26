@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System;
 
 namespace Todo.Database.Models
 {
@@ -66,6 +67,13 @@ namespace Todo.Database.Models
 
                 entity.Property(e => e.Role).HasConversion<int>();
             });
+
+            var user1 = new User { Id = Guid.NewGuid(), UserName = "user1_test", FirstName = "User1", LastName = "Test", Email = "user1test@todolist.com", Country = "Australia", State = "Victoria", City = "Melbourne", PhoneNumber = "0412345678", Street = "Elizabeth", Postcode = "3000", Role = Contracts.Enums.UserRoles.NormalUser, PasswordHash = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8" };
+            modelBuilder.Entity<User>(e =>
+            {
+                e.HasData(user1);
+            });
+
 
             OnModelCreatingPartial(modelBuilder);
         }

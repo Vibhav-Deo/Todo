@@ -44,7 +44,7 @@ namespace Todo.Web
 
             var messageBusConfig = Configuration.GetSection("MessageBus");
             var busType = messageBusConfig["Type"];
-            if(busType.ToLower().Equals("inmemory"))
+            if (busType.ToLower().Equals("inmemory"))
             {
                 services.AddMassTransit(massTransitConfig =>
                 {
@@ -136,8 +136,8 @@ namespace Todo.Web
                 return new CosmosDbContext(cosmosCredentials["Key"], cosmosCredentials["Url"]);
             });
             services.AddMassTransitHostedService();
-            
-            services.AddScoped<IUserReadService,UserReadService>();
+
+            services.AddScoped<IUserReadService, UserReadService>();
             services.AddScoped<IUserReadRepository, UserReadRepository>();
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
 

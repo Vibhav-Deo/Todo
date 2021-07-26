@@ -10,11 +10,9 @@ namespace Todo.Database.Models
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public Guid ItemId { get; set; }
         public string Name { get; set; }
         public bool IsDeleted { get; set; }
-        public string  Description { get; set; }
+        public string Description { get; set; }
         public virtual User User { get; set; }
-        public virtual List<TodoListItem> Items { get; set; }
     }
 }

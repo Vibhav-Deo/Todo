@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Todo.Database.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -36,7 +36,6 @@ namespace Todo.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -59,7 +58,7 @@ namespace Todo.Database.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    TodoListId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    TodoListId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -69,8 +68,13 @@ namespace Todo.Database.Migrations
                         column: x => x.TodoListId,
                         principalTable: "TodoLists",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "City", "Country", "Email", "FirstName", "LastName", "PasswordHash", "PhoneNumber", "Postcode", "Role", "State", "Street", "UserName" },
+                values: new object[] { new Guid("9e997f4c-50e6-43a9-83eb-b9fe1233a8b5"), "Melbourne", "Australia", "user1test@todolist.com", "User1", "Test", "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", "0412345678", "3000", 2, "Victoria", "Elizabeth", "user1_test" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_TodoListItems_TodoListId",

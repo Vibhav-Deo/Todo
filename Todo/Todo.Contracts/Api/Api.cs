@@ -14,6 +14,7 @@
             public const string LOG_OUT = USER + "/logout";
             public const string REGISTER = USER + "/register";
             public const string REFRESH_TOKEN = USER + "/refresh-token";
+            public const string BY_EMAIL = USER + "/{userEmail}";
         }
     }
 }
