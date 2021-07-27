@@ -26,6 +26,7 @@ using Todo.Backend.User.Repositories.Write;
 using Todo.Backend.TodoList.Services;
 using Todo.Backend.TodoList.Repositories.Read;
 using Todo.Backend.TodoList.Repositories.Write;
+using Todo.Contracts.Commands.TodoList;
 
 namespace Todo.Web
 {
@@ -48,10 +49,7 @@ namespace Todo.Web
             {
                 services.AddMassTransit(massTransitConfig =>
                 {
-                    massTransitConfig.AddConsumer<UserEventConsumer>();
-                    massTransitConfig.AddConsumer<UserCommandHandler>();
-                    massTransitConfig.AddConsumer<TodoListEventConsumer>();
-                    massTransitConfig.AddConsumer<TodoListCommandHandler>();
+
 
                     massTransitConfig.UsingInMemory((context, cfg) =>
                     {
@@ -59,25 +57,25 @@ namespace Todo.Web
                         cfg.ReceiveEndpoint(nameof(UserEventConsumer), cfg =>
                         {
                             cfg.PrefetchCount = 10;
-                            cfg.ConfigureConsumer<UserEventConsumer>(context);
+                            cfg.Consumer<UserEventConsumer>(context);
                         });
 
                         cfg.ReceiveEndpoint(nameof(UserCommandHandler), cfg =>
                         {
                             cfg.PrefetchCount = 10;
-                            cfg.ConfigureConsumer<UserCommandHandler>(context);
+                            cfg.Consumer<UserCommandHandler>(context);
                         });
 
                         cfg.ReceiveEndpoint(nameof(TodoListEventConsumer), cfg =>
                         {
                             cfg.PrefetchCount = 10;
-                            cfg.ConfigureConsumer<TodoListEventConsumer>(context);
+                            cfg.Consumer<TodoListEventConsumer>(context);
                         });
 
                         cfg.ReceiveEndpoint(nameof(TodoListCommandHandler), cfg =>
                         {
                             cfg.PrefetchCount = 10;
-                            cfg.ConfigureConsumer<TodoListCommandHandler>(context);
+                            cfg.Consumer<TodoListCommandHandler>(context);
                         });
                     });
                 });
@@ -100,6 +98,7 @@ namespace Todo.Web
                             h.Username(busConfig["Username"]);
                             h.Password(busConfig["Password"]);
                         });
+
 
                         rabbitMqConfig.ReceiveEndpoint(nameof(UserEventConsumer), cfg =>
                         {

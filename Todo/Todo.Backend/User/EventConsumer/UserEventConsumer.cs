@@ -26,20 +26,36 @@ namespace Todo.Backend.User.EventConsumer
                 var @event = context.Message;
                 var response = await _cosmosDbContext.CreateItemAsync(@event);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
-                _logger.LogError(exception, "Failed to consume "+nameof(UserCreatedEvent));
+                _logger.LogError(exception, "Failed to consume " + nameof(UserCreatedEvent));
             }
         }
 
-        public Task Consume(ConsumeContext<UserDeletedEvent> context)
+        public async Task Consume(ConsumeContext<UserDeletedEvent> context)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                var @event = context.Message;
+                var response = await _cosmosDbContext.CreateItemAsync(@event);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to consume " + nameof(UserDeletedEvent));
+            }
         }
 
-        public Task Consume(ConsumeContext<UserUpdatedEvent> context)
+        public async Task Consume(ConsumeContext<UserUpdatedEvent> context)
         {
-            throw new System.NotImplementedException();
+            try
+            {
+                var @event = context.Message;
+                var response = await _cosmosDbContext.CreateItemAsync(@event);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to consume " + nameof(UserUpdatedEvent));
+            }
         }
     }
 }

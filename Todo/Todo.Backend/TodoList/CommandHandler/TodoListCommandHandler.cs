@@ -25,26 +25,32 @@ namespace Todo.Backend.TodoList.CommandHandler
         public async Task Consume(ConsumeContext<CreateTodoListCommand> context)
         {
             var command = context.Message;
-            var todoListId = Guid.NewGuid();
+
+            _logger.LogInformation("Started consuming create todo list command");
             try
             {
+                var todoListId = Guid.NewGuid();
+                var todoList = new Database.Models.TodoList
+                {
+                    Description = command.Description,
+                    Id = todoListId,
+                    IsDeleted = false,
+                    Name = command.Name,
+                    UserId = command.UserId
+                };
+
                 using (var transactionScope = new TransactionScope())
                 {
-                    await _todoListWriteRepository.CreateTodoList(new Database.Models.TodoList
-                    {
-                        Description = command.Description,
-                        Id = todoListId,
-                        IsDeleted = false,
-                        Name = command.Name,
-                        UserId = command.UserId
-                    });
+                    await _todoListWriteRepository.CreateTodoList(todoList);
                     transactionScope.Complete();
                 }
                 var correlationId = context.CorrelationId ?? Guid.NewGuid();
                 await _bus.Publish(new TodoListCreatedEvent(todoListId.ToString(), "TodoList", Contracts.Enums.EntityType.TodoList, correlationId, DateTimeOffset.UtcNow));
+                _logger.LogInformation("Todo list Created Successfully");
             }
             catch (Exception exception)
             {
+                _logger.LogError("Failed to create todo list");
                 throw new TodoApplicationException("Failed to create todo list", exception);
             }
         }

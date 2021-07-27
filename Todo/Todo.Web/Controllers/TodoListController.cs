@@ -8,9 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Todo.Backend.TodoList.CommandHandler;
 using Todo.Contracts.Api;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.StringResources;
+using Todo.Database.Models;
 using Todo.Web.RequestResponse.TodoList;
 
 namespace Todo.Web.Controllers
@@ -38,8 +40,8 @@ namespace Todo.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [Produces(typeof(string))]
-        [Authorize]
+        [Produces(typeof(TodoList))]
+        //[Authorize]
         public async Task<IActionResult> CreateTodoList([FromBody] CreateTodoListRequest request, [FromRoute] Guid userId)
         {
             if (!ModelState.IsValid)
@@ -48,16 +50,16 @@ namespace Todo.Web.Controllers
             }
             return await MakeServiceCall(async () =>
             {
-                var createUserCommand = new CreateTodoListCommand();
+                var createTodoListCommand = new CreateTodoListCommand
+                {
+                    UserId = userId
+                };
 
-                createUserCommand.UserId = userId;
+                _mapper.Map(request, createTodoListCommand);
 
-                _mapper.Map(request, createUserCommand);
+                await _bus.Publish(createTodoListCommand);
 
-
-                await _bus.Publish(createUserCommand);
-
-                return Success(StringResources.UserRegisterationSuccessful);
+                return Success("Success");
 
             }, StringResources.GeneralError);
         }
