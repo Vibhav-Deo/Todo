@@ -1,2 +1,2 @@
 # Todo
-Example of CQRS pattern using event drivent architechture
+Example of CQRS pattern using event driven architechture

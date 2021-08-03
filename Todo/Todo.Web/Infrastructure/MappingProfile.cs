@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Todo.Backend.TodoList.Repositories.Dtos;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.Commands.User;
 using Todo.Database.Models;
@@ -19,6 +16,8 @@ namespace Todo.Web.Infrastructure
             CreateMap<UserRegisterationRequest, CreateUserCommand>();
             CreateMap<User, UserResponse>();
             CreateMap<CreateTodoListRequest, CreateTodoListCommand>();
+            CreateMap<RequestResponse.TodoList.TodoListItemToBeCreated, Contracts.Commands.TodoList.TodoListItemToBeCreated>();
+            CreateMap<CreateTodoListItemsRequest, CreateTodoListItemsCommand>();
         }
     }
 }

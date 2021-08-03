@@ -15,6 +15,7 @@ using Todo.Backend.User.Services.RequestResponse;
 using Todo.Contracts.Api;
 using Todo.Contracts.Commands.User;
 using Todo.Contracts.StringResources;
+using Todo.Database.Models;
 using Todo.Web.RequestResponse.Token;
 using Todo.Web.RequestResponse.User;
 using Todo.Web.TokenManager;
@@ -28,14 +29,14 @@ namespace Todo.Web.Controllers
         private readonly IUserReadService _userReadService;
         private readonly ITokenManager _tokenManager;
         private readonly IMapper _mapper;
-        private readonly IBus _bus;
-        public UserController(ILogger<UserController> logger, IUserReadService userReadService, ITokenManager tokenManager, IBus bus, IMapper mapper)
+        private readonly IRequestClient<CreateUserCommand> _createUserCommandRequestClient;
+        public UserController(ILogger<UserController> logger, IUserReadService userReadService, ITokenManager tokenManager, IBus bus, IRequestClient<CreateUserCommand> createUserCommand, IMapper mapper)
         {
             _logger = logger;
             _userReadService = userReadService;
             _tokenManager = tokenManager;
             _mapper = mapper;
-            _bus = bus;
+            _createUserCommandRequestClient = createUserCommand;
         }
 
         /// <summary>
@@ -107,7 +108,7 @@ namespace Todo.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        [Produces(typeof(string))]
+        [Produces(typeof(User))]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] UserRegisterationRequest request)
         {
@@ -121,9 +122,9 @@ namespace Todo.Web.Controllers
 
                 _mapper.Map(request, createUserCommand);
 
-                await _bus.Publish(createUserCommand);
+                var user = await _createUserCommandRequestClient.GetResponse<User>(createUserCommand);
 
-                return Success(StringResources.UserRegisterationSuccessful);
+                return Created(user);
 
             }, StringResources.GeneralError);
         }

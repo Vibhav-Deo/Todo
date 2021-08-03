@@ -123,6 +123,12 @@
   <data name="FailedToAddUser" xml:space="preserve">
     <value>The user could not be added.</value>
   </data>
+  <data name="FailedToCreateTodoList" xml:space="preserve">
+    <value>Failed to create todo list.</value>
+  </data>
+  <data name="FailedToCreateTodoListItems" xml:space="preserve">
+    <value>Failed to create todolist items.</value>
+  </data>
   <data name="GeneralError" xml:space="preserve">
     <value>An unexpected error occured!</value>
   </data>

@@ -22,6 +22,7 @@
             public const string TODOLIST = API_PREFIX_WITH_VERSION + "/todo-list";
             public const string BY_ID = TODOLIST + "/{todoListId}";
             public const string CREATE_TODO_LIST = TODOLIST + "/{userId}/create-todo-list";
+            public const string CREATE_TODO_LIST_ITEMS = BY_ID + "/create-todo-list-items";
         }
     }
 }

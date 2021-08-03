@@ -79,6 +79,24 @@ namespace Todo.Contracts.StringResources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to create todo list..
+        /// </summary>
+        public static string FailedToCreateTodoList {
+            get {
+                return ResourceManager.GetString("FailedToCreateTodoList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to create todolist items..
+        /// </summary>
+        public static string FailedToCreateTodoListItems {
+            get {
+                return ResourceManager.GetString("FailedToCreateTodoListItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unexpected error occured!.
         /// </summary>
         public static string GeneralError {

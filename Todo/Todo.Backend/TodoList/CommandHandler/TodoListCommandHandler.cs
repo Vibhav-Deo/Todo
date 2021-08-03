@@ -1,6 +1,8 @@
 ﻿using MassTransit;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Todo.Backend.TodoList.Repositories.Write;
@@ -8,10 +10,11 @@ using Todo.Contracts.Commands;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.Events.TodoList;
 using Todo.Contracts.Exceptions;
+using Todo.Contracts.StringResources;
 
 namespace Todo.Backend.TodoList.CommandHandler
 {
-    public class TodoListCommandHandler : IConsumer<CreateTodoListCommand>, IConsumer<UpdateTodoListCommand>, IConsumer<DeleteTodoListCommand>
+    public class TodoListCommandHandler : IConsumer<CreateTodoListCommand>, IConsumer<UpdateTodoListCommand>, IConsumer<DeleteTodoListCommand>, IConsumer<CreateTodoListItemsCommand>
     {
         private readonly ILogger<TodoListCommandHandler> _logger;
         private readonly ITodoListWriteRepository _todoListWriteRepository;
@@ -41,17 +44,19 @@ namespace Todo.Backend.TodoList.CommandHandler
 
                 using (var transactionScope = new TransactionScope())
                 {
-                    await _todoListWriteRepository.CreateTodoList(todoList);
+                    await _todoListWriteRepository.CreateTodoListAsync(todoList);
                     transactionScope.Complete();
                 }
                 var correlationId = context.CorrelationId ?? Guid.NewGuid();
                 await _bus.Publish(new TodoListCreatedEvent(todoListId.ToString(), "TodoList", Contracts.Enums.EntityType.TodoList, correlationId, DateTimeOffset.UtcNow));
+                var createdTodoList = await _todoListWriteRepository.GetTodoListItems(todoListId);
                 _logger.LogInformation("Todo list Created Successfully");
+                await context.RespondAsync(createdTodoList);
             }
             catch (Exception exception)
             {
                 _logger.LogError("Failed to create todo list");
-                throw new TodoApplicationException("Failed to create todo list", exception);
+                throw new TodoApplicationException(StringResources.FailedToCreateTodoList, exception);
             }
         }
 
@@ -63,6 +68,38 @@ namespace Todo.Backend.TodoList.CommandHandler
         public Task Consume(ConsumeContext<DeleteTodoListCommand> context)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task Consume(ConsumeContext<CreateTodoListItemsCommand> context)
+        {
+            var command = context.Message;
+
+            try
+            {
+                _logger.LogError("Started consumption of create todo list items command");
+                var todoListItems = new List<Database.Models.TodoListItem>();
+                foreach (var item in command.TodoListItems)
+                {
+                    todoListItems.Add(new Database.Models.TodoListItem { Id = Guid.NewGuid(), Description = item.Description, Status = Contracts.Enums.TodoListItemStatus.Created, TodoListId = command.TodoListId });
+                }
+
+                await _todoListWriteRepository.CreateTodoListItemsAsync(todoListItems);
+
+                var correlationId = context.CorrelationId ?? Guid.NewGuid();
+                var createdTodoListItems = await _todoListWriteRepository.GetTodoListItems(command.TodoListId);
+
+                foreach (var listItems in createdTodoListItems.TodoListItems)
+                {
+                    await _bus.Publish(new TodoListItemCreatedEvent(listItems.Id.ToString(), "TodoList", Contracts.Enums.EntityType.TodoListItem, correlationId, DateTimeOffset.UtcNow));
+                }
+
+                await context.RespondAsync(createdTodoListItems);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError("Failed to create todo list items");
+                throw new TodoApplicationException(StringResources.FailedToCreateTodoListItems, exception);
+            }
         }
     }
 }

@@ -50,6 +50,10 @@ namespace Todo.Web
                 services.AddMassTransit(massTransitConfig =>
                 {
 
+                    massTransitConfig.AddConsumer<UserEventConsumer>();
+                    massTransitConfig.AddConsumer<UserCommandHandler>();
+                    massTransitConfig.AddConsumer<TodoListEventConsumer>();
+                    massTransitConfig.AddConsumer<TodoListCommandHandler>();
 
                     massTransitConfig.UsingInMemory((context, cfg) =>
                     {
@@ -84,6 +88,7 @@ namespace Todo.Web
             {
                 var busConfig = messageBusConfig.GetSection("BusConfig");
 
+                services.AddGenericRequestClient();
                 services.AddMassTransit(massTransitConfig =>
                 {
                     massTransitConfig.AddConsumer<UserEventConsumer>();

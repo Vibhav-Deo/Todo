@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Todo.Backend.TodoList.CommandHandler;
+using Todo.Backend.TodoList.Repositories.Dtos;
 using Todo.Contracts.Api;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.StringResources;
@@ -22,12 +23,14 @@ namespace Todo.Web.Controllers
     {
         private readonly ILogger<TodoListController> _logger;
         private readonly IMapper _mapper;
-        private readonly IBus _bus;
-        public TodoListController(ILogger<TodoListController> logger, IBus bus, IMapper mapper)
+        private readonly IRequestClient<CreateTodoListCommand> _createTodoListCommandRequestClient;
+        private readonly IRequestClient<CreateTodoListItemsCommand> _createTodoListItemsCommandRequestClient;
+        public TodoListController(ILogger<TodoListController> logger, IRequestClient<CreateTodoListCommand> createTodoListCommandRequestClient, IRequestClient<CreateTodoListItemsCommand> createTodoListItemsCommandRequestClient, IMapper mapper)
         {
             _logger = logger;
             _mapper = mapper;
-            _bus = bus;
+            _createTodoListCommandRequestClient = createTodoListCommandRequestClient;
+            _createTodoListItemsCommandRequestClient = createTodoListItemsCommandRequestClient;
         }
 
         /// <summary>
@@ -39,9 +42,8 @@ namespace Todo.Web.Controllers
         [Route(ApiRoutes.TodoList.CREATE_TODO_LIST)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [Produces(typeof(TodoList))]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> CreateTodoList([FromBody] CreateTodoListRequest request, [FromRoute] Guid userId)
         {
             if (!ModelState.IsValid)
@@ -57,9 +59,37 @@ namespace Todo.Web.Controllers
 
                 _mapper.Map(request, createTodoListCommand);
 
-                await _bus.Publish(createTodoListCommand);
+                var todoList = await _createTodoListCommandRequestClient.GetResponse<TodoList>(createTodoListCommand);
 
-                return Success("Success");
+                return Created(todoList);
+
+            }, StringResources.GeneralError);
+        }
+
+        [HttpPost]
+        [Route(ApiRoutes.TodoList.CREATE_TODO_LIST_ITEMS)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces(typeof(TodoListItem))]
+        [Authorize]
+        public async Task<IActionResult> CreateTodoListItem([FromBody] CreateTodoListItemsRequest request, [FromRoute] Guid todoListId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            return await MakeServiceCall(async () =>
+            {
+                var createTodoListItemsCommand = new CreateTodoListItemsCommand
+                {
+                    TodoListId = todoListId
+                };
+
+                _mapper.Map(request, createTodoListItemsCommand);
+
+                var createdListItems = await _createTodoListItemsCommandRequestClient.GetResponse<CreatedTodoListItemsDto>(createTodoListItemsCommand);
+
+                return Created(createdListItems.Message.TodoListItems);
 
             }, StringResources.GeneralError);
         }

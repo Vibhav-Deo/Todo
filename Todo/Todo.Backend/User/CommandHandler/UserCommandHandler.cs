@@ -81,7 +81,9 @@ namespace Todo.Backend.User.CommandHandler
 
                 var message = new UserCreatedEvent(entityId, entity, EntityType.User, correlationId, DateTimeOffset.UtcNow);
                 await _bus.Publish(message);
+                var user = await _userWriteRepository.GetUserByEmailAsync(command.Email);
                 _logger.LogInformation("User Created Successfully");
+                await context.RespondAsync(user);
 
             }
             catch (Exception exception)
