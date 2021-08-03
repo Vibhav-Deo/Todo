@@ -7,7 +7,7 @@ using Todo.Database.Cosmos;
 
 namespace Todo.Backend.Todo.EventConsumers
 {
-    public class TodoListEventConsumer : IConsumer<TodoListCreatedEvent>, IConsumer<TodoListDeletedEvent>, IConsumer<TodoListUpdatedEvent>
+    public class TodoListEventConsumer : IConsumer<TodoListCreatedEvent>, IConsumer<TodoListDeletedEvent>, IConsumer<TodoListUpdatedEvent>, IConsumer<TodoListItemCreatedEvent>
     {
         private readonly ILogger<TodoListEventConsumer> _logger;
         private readonly CosmosDbContext _cosmosDbContext;
@@ -53,6 +53,19 @@ namespace Todo.Backend.Todo.EventConsumers
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Failed to consume " + nameof(TodoListUpdatedEvent));
+            }
+        }
+
+        public async Task Consume(ConsumeContext<TodoListItemCreatedEvent> context)
+        {
+            try
+            {
+                var @event = context.Message;
+                var response = await _cosmosDbContext.CreateItemAsync(@event);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Failed to consume " + nameof(TodoListItemCreatedEvent));
             }
         }
     }
