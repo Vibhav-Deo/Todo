@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Todo.Backend.TodoList.CommandHandler;
 using Todo.Backend.TodoList.Repositories.Dtos;
+using Todo.Backend.TodoList.Services;
 using Todo.Contracts.Api;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.StringResources;
@@ -25,12 +26,14 @@ namespace Todo.Web.Controllers
         private readonly IMapper _mapper;
         private readonly IRequestClient<CreateTodoListCommand> _createTodoListCommandRequestClient;
         private readonly IRequestClient<CreateTodoListItemsCommand> _createTodoListItemsCommandRequestClient;
-        public TodoListController(ILogger<TodoListController> logger, IRequestClient<CreateTodoListCommand> createTodoListCommandRequestClient, IRequestClient<CreateTodoListItemsCommand> createTodoListItemsCommandRequestClient, IMapper mapper)
+        private readonly ITodoListReadService _todoListReadService;
+        public TodoListController(ILogger<TodoListController> logger, IRequestClient<CreateTodoListCommand> createTodoListCommandRequestClient, IRequestClient<CreateTodoListItemsCommand> createTodoListItemsCommandRequestClient, IMapper mapper, ITodoListReadService todoListReadService)
         {
             _logger = logger;
             _mapper = mapper;
             _createTodoListCommandRequestClient = createTodoListCommandRequestClient;
             _createTodoListItemsCommandRequestClient = createTodoListItemsCommandRequestClient;
+            _todoListReadService = todoListReadService;
         }
 
         /// <summary>
@@ -40,7 +43,7 @@ namespace Todo.Web.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route(ApiRoutes.TodoList.CREATE_TODO_LIST)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(typeof(TodoList))]
         [Authorize]
@@ -68,7 +71,7 @@ namespace Todo.Web.Controllers
 
         [HttpPost]
         [Route(ApiRoutes.TodoList.CREATE_TODO_LIST_ITEMS)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(typeof(TodoListItem))]
         [Authorize]
@@ -91,6 +94,21 @@ namespace Todo.Web.Controllers
 
                 return Created(createdListItems.Message.TodoListItems);
 
+            }, StringResources.GeneralError);
+        }
+
+        [HttpGet]
+        [Route(ApiRoutes.TodoList.GET_TODO_LIST_BY_ID)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces(typeof(TodoListItem))]
+        [Authorize]
+        public async Task<IActionResult> GetTodoListById([FromRoute] Guid todoListId)
+        {
+            return await MakeServiceCall(async () => 
+            {
+                var todoList = await _todoListReadService.GetTodoListByIdAsync(todoListId);
+                return Success(todoList);
             }, StringResources.GeneralError);
         }
     }

@@ -49,7 +49,7 @@ namespace Todo.Backend.TodoList.Repositories.Write
         {
             var createdTodoListItems = new CreatedTodoListItemsDto
             {
-                TodoListItems = _context.TodoListItems.Include(list => list.TodoList).Where(item => item.TodoListId == todoListId).ToList()
+                TodoListItems = _context.TodoListItems.Include(list => list.TodoList).Include(list => list.TodoList.User).Where(item => item.TodoListId == todoListId).ToList()
             };
             return Task.FromResult(createdTodoListItems);
         }

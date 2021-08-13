@@ -23,6 +23,7 @@
             public const string BY_ID = TODOLIST + "/{todoListId}";
             public const string CREATE_TODO_LIST = TODOLIST + "/{userId}/create-todo-list";
             public const string CREATE_TODO_LIST_ITEMS = BY_ID + "/create-todo-list-items";
+            public const string GET_TODO_LIST_BY_ID = BY_ID;
         }
     }
 }
