@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Todo.Contracts.Enums;
 
 namespace Todo.Contracts.Events.User
@@ -16,7 +12,7 @@ namespace Todo.Contracts.Events.User
         public EntityType EntityType { get; }
         public Guid CorrelationId { get; set; }
 
-        public UserUpdatedEvent(string entityId, string entity, EntityType entityType, Guid correlationId,DateTimeOffset createdOn)
+        public UserUpdatedEvent(string entityId, string entity, EntityType entityType, Guid correlationId, DateTimeOffset createdOn)
         {
             Id = entityId;
             EntityThatTookAction = entity;

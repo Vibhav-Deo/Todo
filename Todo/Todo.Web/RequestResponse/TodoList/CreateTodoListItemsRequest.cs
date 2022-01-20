@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Todo.Contracts.Enums;
+﻿using System.Collections.Generic;
 
 namespace Todo.Web.RequestResponse.TodoList
 {

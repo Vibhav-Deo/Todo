@@ -1,15 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Todo.Backend.User.Repository;
 using Todo.Backend.User.Services.RequestResponse;
 using Todo.Contracts.Exceptions;
 using Todo.Contracts.StringResources;
-using Microsoft.AspNetCore.Http;
-using Todo.Backend.User.Repository;
 
 namespace Todo.Backend.User.Services
 {
@@ -83,56 +81,56 @@ namespace Todo.Backend.User.Services
 
         }
 
-/*        public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
-        {
-            if (await IsAnExistingUserAsync(request.Email))
-            {
-                throw new LandmarkRemarkApplicationException(StringResources.UserAlreadyRegistered, StatusCodes.Status409Conflict);
-            }
-
-            if (string.IsNullOrEmpty(request.Password) || string.IsNullOrWhiteSpace(request.Password))
-            {
-                throw new ValidationException(StringResources.PasswordCannotBeEmty, StatusCodes.Status400BadRequest);
-            }
-
-            Guid userId = Guid.NewGuid();
-            byte[] hash = SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(request.Password));
-            StringBuilder sb = new StringBuilder();
-            foreach (var passwordByte in hash)
-            {
-                sb.Append(passwordByte.ToString("x2"));
-            }
-
-            try
-            {
-                await _userRepository.RegisterUserAsync(new User
+        /*        public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
                 {
-                    Id = userId,
-                    City = request.City,
-                    Country = request.Country,
-                    Email = request.Email,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    PhoneNumber = request.PhoneNumber,
-                    Role = (int)UserRoles.NormalUser,
-                    State = request.State,
-                    UserName = request.UserName,
-                    Postcode = request.Postcode,
-                    Street = request.Street,
-                    PasswordHash = sb.ToString()
-                });
-            }
-            catch (Exception)
-            {
+                    if (await IsAnExistingUserAsync(request.Email))
+                    {
+                        throw new LandmarkRemarkApplicationException(StringResources.UserAlreadyRegistered, StatusCodes.Status409Conflict);
+                    }
 
-                throw new LandmarkRemarkApplicationException(StringResources.FailedToAddUser, StatusCodes.Status500InternalServerError);
-            }
+                    if (string.IsNullOrEmpty(request.Password) || string.IsNullOrWhiteSpace(request.Password))
+                    {
+                        throw new ValidationException(StringResources.PasswordCannotBeEmty, StatusCodes.Status400BadRequest);
+                    }
 
-            return new RegisterUserResponse
-            {
-                CreatedUser = await _userRepository.GetUserAsync(userId)
-            };
-        }*/
+                    Guid userId = Guid.NewGuid();
+                    byte[] hash = SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(request.Password));
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var passwordByte in hash)
+                    {
+                        sb.Append(passwordByte.ToString("x2"));
+                    }
+
+                    try
+                    {
+                        await _userRepository.RegisterUserAsync(new User
+                        {
+                            Id = userId,
+                            City = request.City,
+                            Country = request.Country,
+                            Email = request.Email,
+                            FirstName = request.FirstName,
+                            LastName = request.LastName,
+                            PhoneNumber = request.PhoneNumber,
+                            Role = (int)UserRoles.NormalUser,
+                            State = request.State,
+                            UserName = request.UserName,
+                            Postcode = request.Postcode,
+                            Street = request.Street,
+                            PasswordHash = sb.ToString()
+                        });
+                    }
+                    catch (Exception)
+                    {
+
+                        throw new LandmarkRemarkApplicationException(StringResources.FailedToAddUser, StatusCodes.Status500InternalServerError);
+                    }
+
+                    return new RegisterUserResponse
+                    {
+                        CreatedUser = await _userRepository.GetUserAsync(userId)
+                    };
+                }*/
 
         public async Task<GetUserByIdResponse> GetUserAsync(GetUserByIdRequest request)
         {

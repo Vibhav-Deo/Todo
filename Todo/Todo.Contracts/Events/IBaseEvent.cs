@@ -1,6 +1,5 @@
-﻿using MassTransit;
-using System;
-using Todo.Contracts.Enums;
+﻿using System;
+using MassTransit;
 
 namespace Todo.Contracts.Events
 {

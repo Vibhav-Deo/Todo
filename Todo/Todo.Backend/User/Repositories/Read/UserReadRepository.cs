@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Todo.Contracts.Enums;
 using Todo.Database.Models;
-using Models =  Todo.Database.Models;
+using Models = Todo.Database.Models;
 
 namespace Todo.Backend.User.Repository
 {

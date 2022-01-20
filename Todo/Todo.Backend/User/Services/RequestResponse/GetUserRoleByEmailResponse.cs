@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Todo.Contracts.Enums;
+﻿using Todo.Contracts.Enums;
 
 namespace Todo.Backend.User.Services.RequestResponse
 {

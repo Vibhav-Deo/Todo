@@ -1,10 +1,8 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Threading.Tasks;
-using Todo.Contracts.Events;
-using Todo.Contracts.Events.User;
 
 namespace Todo.Database.Cosmos
 {
@@ -47,7 +45,7 @@ namespace Todo.Database.Cosmos
             Database = await CosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseId);
         }
 
-        public  async Task CreateContainerAsync()
+        public async Task CreateContainerAsync()
         {
             // Create a new container
             Container = await Database.CreateContainerIfNotExistsAsync(ContainerId, "/correlationId", 400);
@@ -58,14 +56,14 @@ namespace Todo.Database.Cosmos
             try
             {
                 var correlationId = JObject.Parse(JsonConvert.SerializeObject(data))["CorrelationId"];
-                if(correlationId.Equals(Guid.Empty))
+                if (correlationId.Equals(Guid.Empty))
                 {
                     throw new NullReferenceException("Id cannot be null");
                 }
                 var itemResponse = await Container.CreateItemAsync(data, new PartitionKey(correlationId.ToString()));
                 return itemResponse;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }

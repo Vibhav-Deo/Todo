@@ -1,15 +1,13 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AutoMapper;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Todo.Backend.User.Services;
 using Todo.Backend.User.Services.RequestResponse;
 using Todo.Contracts.Api;
@@ -199,7 +197,7 @@ namespace Todo.Web.Controllers
         }
 
         /// <summary>
-        /// This method removes the refresh token and invalidates the login of the current logged in user. 
+        /// This method removes the refresh token and invalidates the login of the current logged in user.
         /// </summary>
         /// <returns></returns>
         [HttpPost]

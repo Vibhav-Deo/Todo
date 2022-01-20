@@ -1,14 +1,11 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading.Tasks;
+using AutoMapper;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Todo.Backend.TodoList.CommandHandler;
 using Todo.Backend.TodoList.Repositories.Dtos;
 using Todo.Backend.TodoList.Services;
 using Todo.Contracts.Api;
@@ -105,7 +102,7 @@ namespace Todo.Web.Controllers
         [Authorize]
         public async Task<IActionResult> GetTodoListById([FromRoute] Guid todoListId)
         {
-            return await MakeServiceCall(async () => 
+            return await MakeServiceCall(async () =>
             {
                 var todoList = await _todoListReadService.GetTodoListByIdAsync(todoListId);
                 return Success(todoList);

@@ -1,6 +1,5 @@
 ﻿using System;
 using Todo.Contracts.Enums;
-using Todo.Contracts.Events.TodoList;
 
 namespace Todo.Contracts.Events.TodoList
 {

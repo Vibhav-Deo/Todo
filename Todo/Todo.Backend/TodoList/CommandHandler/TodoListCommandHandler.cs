@@ -1,12 +1,10 @@
-﻿using MassTransit;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
+using MassTransit;
+using Microsoft.Extensions.Logging;
 using Todo.Backend.TodoList.Repositories.Write;
-using Todo.Contracts.Commands;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.Events.TodoList;
 using Todo.Contracts.Exceptions;

@@ -1,13 +1,11 @@
-﻿using MassTransit;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using MassTransit;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Todo.Backend.User.Repositories.Write;
 using Todo.Contracts.Commands.User;
 using Todo.Contracts.Enums;

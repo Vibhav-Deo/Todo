@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Todo.Backend.TodoList.Repositories.Dtos;
 using Todo.Contracts.Commands.TodoList;
 using Todo.Contracts.Commands.User;
 using Todo.Database.Models;

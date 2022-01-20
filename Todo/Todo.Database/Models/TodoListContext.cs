@@ -1,7 +1,6 @@
 ﻿
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace Todo.Database.Models
 {
