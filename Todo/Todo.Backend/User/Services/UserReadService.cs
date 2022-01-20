@@ -1,157 +1,156 @@
-﻿using System;
+﻿namespace Todo.Backend.User.Services;
+
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using global::Todo.Backend.User.Services.RequestResponse;
+using global::Todo.Contracts.Exceptions;
+using global::Todo.Contracts.StringResources;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Todo.Backend.User.Repository;
-using Todo.Backend.User.Services.RequestResponse;
-using Todo.Contracts.Exceptions;
-using Todo.Contracts.StringResources;
+using Repositories.Read;
 
-namespace Todo.Backend.User.Services
+public interface IUserReadService
 {
-    public interface IUserReadService
+    Task<CheckUserCredentialsResponse> IsValidUserCredentialsAsync(CheckUserCredentialsRequest request);
+    Task<GetUserRoleByEmailResponse> GetUserRoleAsync(GetUserRoleByEmailRequest request);
+    Task<GetUserByIdResponse> GetUserAsync(GetUserByIdRequest request);
+    Task<GetUserByEmailResponse> GetUserByEmail(GetUserByEmailRequest request);
+}
+
+public class UserReadService : IUserReadService
+{
+    private readonly ILogger<UserReadService> _logger;
+    private readonly IUserReadRepository _userReadRepository;
+    public UserReadService(IUserReadRepository userReadRepository, ILogger<UserReadService> logger)
     {
-        Task<CheckUserCredentialsResponse> IsValidUserCredentialsAsync(CheckUserCredentialsRequest request);
-        Task<GetUserRoleByEmailResponse> GetUserRoleAsync(GetUserRoleByEmailRequest request);
-        Task<GetUserByIdResponse> GetUserAsync(GetUserByIdRequest request);
-        Task<GetUserByEmailResponse> GetUserByEmail(GetUserByEmailRequest request);
+        _logger = logger;
+        _userReadRepository = userReadRepository;
     }
 
-    public class UserReadService : IUserReadService
+    public async Task<CheckUserCredentialsResponse> IsValidUserCredentialsAsync(CheckUserCredentialsRequest request)
     {
-        private readonly ILogger<UserReadService> _logger;
-        private readonly IUserReadRepository _userReadRepository;
-        public UserReadService(IUserReadRepository userReadRepository, ILogger<UserReadService> logger)
+        _logger.LogInformation($"Validating user [{request.Email}]");
+
+        bool v = await IsAnExistingUserAsync(request.Email);
+        if (!v)
         {
-            _logger = logger;
-            _userReadRepository = userReadRepository;
-        }
-
-        public async Task<CheckUserCredentialsResponse> IsValidUserCredentialsAsync(CheckUserCredentialsRequest request)
-        {
-            _logger.LogInformation($"Validating user [{request.Email}]");
-
-            bool v = await IsAnExistingUserAsync(request.Email);
-            if (!v)
-            {
-                return new CheckUserCredentialsResponse
-                {
-                    isValid = false
-                };
-            }
-
-            var user = await _userReadRepository.GetUserByEmailAsync(request.Email);
-
-            byte[] hash = SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(request.Password));
-            StringBuilder sb = new StringBuilder();
-
-            foreach (var passwordByte in hash)
-            {
-                sb.Append(passwordByte.ToString("x2"));
-            }
-
             return new CheckUserCredentialsResponse
             {
-                isValid = sb.Equals(user.PasswordHash) && user.Email.Equals(request.Email)
+                isValid = false
             };
         }
 
-        private async Task<bool> IsAnExistingUserAsync(string email)
+        var user = await _userReadRepository.GetUserByEmailAsync(request.Email);
+
+        byte[] hash = SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(request.Password));
+        StringBuilder sb = new StringBuilder();
+
+        foreach (var passwordByte in hash)
         {
-            return await _userReadRepository.IsExistingUserAsync(email);
+            sb.Append(passwordByte.ToString("x2"));
         }
 
-        private async Task<bool> IsAnExistingUserAsync(Guid userId)
+        return new CheckUserCredentialsResponse
         {
-            return await _userReadRepository.IsExistingUserAsync(userId);
-        }
+            isValid = sb.Equals(user.PasswordHash) && user.Email.Equals(request.Email)
+        };
+    }
 
-        public async Task<GetUserRoleByEmailResponse> GetUserRoleAsync(GetUserRoleByEmailRequest request)
+    private async Task<bool> IsAnExistingUserAsync(string email)
+    {
+        return await _userReadRepository.IsExistingUserAsync(email);
+    }
+
+    private async Task<bool> IsAnExistingUserAsync(Guid userId)
+    {
+        return await _userReadRepository.IsExistingUserAsync(userId);
+    }
+
+    public async Task<GetUserRoleByEmailResponse> GetUserRoleAsync(GetUserRoleByEmailRequest request)
+    {
+        if (!await IsAnExistingUserAsync(request.Email))
         {
-            if (!await IsAnExistingUserAsync(request.Email))
+            throw new TodoApplicationException(StringResources.UserNotFound, StatusCodes.Status404NotFound, new Exception(StringResources.UserNotFound));
+        }
+        return new GetUserRoleByEmailResponse
+        {
+            Role = await _userReadRepository.GetUserRoleByEmailAsync(request.Email)
+        };
+
+    }
+
+    /*        public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
             {
-                throw new TodoApplicationException(StringResources.UserNotFound, StatusCodes.Status404NotFound, new Exception(StringResources.UserNotFound));
-            }
-            return new GetUserRoleByEmailResponse
-            {
-                Role = await _userReadRepository.GetUserRoleByEmailAsync(request.Email)
-            };
-
-        }
-
-        /*        public async Task<RegisterUserResponse> RegisterUserAsync(RegisterUserRequest request)
+                if (await IsAnExistingUserAsync(request.Email))
                 {
-                    if (await IsAnExistingUserAsync(request.Email))
-                    {
-                        throw new LandmarkRemarkApplicationException(StringResources.UserAlreadyRegistered, StatusCodes.Status409Conflict);
-                    }
+                    throw new LandmarkRemarkApplicationException(StringResources.UserAlreadyRegistered, StatusCodes.Status409Conflict);
+                }
 
-                    if (string.IsNullOrEmpty(request.Password) || string.IsNullOrWhiteSpace(request.Password))
-                    {
-                        throw new ValidationException(StringResources.PasswordCannotBeEmty, StatusCodes.Status400BadRequest);
-                    }
+                if (string.IsNullOrEmpty(request.Password) || string.IsNullOrWhiteSpace(request.Password))
+                {
+                    throw new ValidationException(StringResources.PasswordCannotBeEmty, StatusCodes.Status400BadRequest);
+                }
 
-                    Guid userId = Guid.NewGuid();
-                    byte[] hash = SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(request.Password));
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var passwordByte in hash)
-                    {
-                        sb.Append(passwordByte.ToString("x2"));
-                    }
+                Guid userId = Guid.NewGuid();
+                byte[] hash = SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(request.Password));
+                StringBuilder sb = new StringBuilder();
+                foreach (var passwordByte in hash)
+                {
+                    sb.Append(passwordByte.ToString("x2"));
+                }
 
-                    try
+                try
+                {
+                    await _userRepository.RegisterUserAsync(new User
                     {
-                        await _userRepository.RegisterUserAsync(new User
-                        {
-                            Id = userId,
-                            City = request.City,
-                            Country = request.Country,
-                            Email = request.Email,
-                            FirstName = request.FirstName,
-                            LastName = request.LastName,
-                            PhoneNumber = request.PhoneNumber,
-                            Role = (int)UserRoles.NormalUser,
-                            State = request.State,
-                            UserName = request.UserName,
-                            Postcode = request.Postcode,
-                            Street = request.Street,
-                            PasswordHash = sb.ToString()
-                        });
-                    }
-                    catch (Exception)
-                    {
+                        Id = userId,
+                        City = request.City,
+                        Country = request.Country,
+                        Email = request.Email,
+                        FirstName = request.FirstName,
+                        LastName = request.LastName,
+                        PhoneNumber = request.PhoneNumber,
+                        Role = (int)UserRoles.NormalUser,
+                        State = request.State,
+                        UserName = request.UserName,
+                        Postcode = request.Postcode,
+                        Street = request.Street,
+                        PasswordHash = sb.ToString()
+                    });
+                }
+                catch (Exception)
+                {
 
-                        throw new LandmarkRemarkApplicationException(StringResources.FailedToAddUser, StatusCodes.Status500InternalServerError);
-                    }
+                    throw new LandmarkRemarkApplicationException(StringResources.FailedToAddUser, StatusCodes.Status500InternalServerError);
+                }
 
-                    return new RegisterUserResponse
-                    {
-                        CreatedUser = await _userRepository.GetUserAsync(userId)
-                    };
-                }*/
+                return new RegisterUserResponse
+                {
+                    CreatedUser = await _userRepository.GetUserAsync(userId)
+                };
+            }*/
 
-        public async Task<GetUserByIdResponse> GetUserAsync(GetUserByIdRequest request)
+    public async Task<GetUserByIdResponse> GetUserAsync(GetUserByIdRequest request)
+    {
+        if (!await IsAnExistingUserAsync(request.UserId))
         {
-            if (!await IsAnExistingUserAsync(request.UserId))
-            {
-                throw new TodoApplicationException(StringResources.UserNotFound, StatusCodes.Status404NotFound, new Exception(StringResources.UserNotFound));
-            }
-
-            return new GetUserByIdResponse
-            {
-                User = await _userReadRepository.GetUserAsync(request.UserId)
-            };
+            throw new TodoApplicationException(StringResources.UserNotFound, StatusCodes.Status404NotFound, new Exception(StringResources.UserNotFound));
         }
 
-        public async Task<GetUserByEmailResponse> GetUserByEmail(GetUserByEmailRequest request)
+        return new GetUserByIdResponse
         {
-            var response = await _userReadRepository.GetUserByEmailAsync(request.Email);
-            return new GetUserByEmailResponse
-            {
-                User = response
-            };
-        }
+            User = await _userReadRepository.GetUserAsync(request.UserId)
+        };
+    }
+
+    public async Task<GetUserByEmailResponse> GetUserByEmail(GetUserByEmailRequest request)
+    {
+        var response = await _userReadRepository.GetUserByEmailAsync(request.Email);
+        return new GetUserByEmailResponse
+        {
+            User = response
+        };
     }
 }

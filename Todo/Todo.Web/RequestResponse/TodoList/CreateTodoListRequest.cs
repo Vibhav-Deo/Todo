@@ -1,8 +1,7 @@
-﻿namespace Todo.Web.RequestResponse.TodoList
+﻿namespace Todo.Web.RequestResponse.TodoList;
+
+public class CreateTodoListRequest
 {
-    public class CreateTodoListRequest
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
+    public string Name { get; set; }
+    public string Description { get; set; }
 }

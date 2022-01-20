@@ -1,9 +1,8 @@
-﻿using System;
+﻿namespace Todo.Backend.User.Services.RequestResponse;
 
-namespace Todo.Backend.User.Services.RequestResponse
+using System;
+
+public class GetUserByIdRequest
 {
-    public class GetUserByIdRequest
-    {
-        public Guid UserId { get; set; }
-    }
+    public Guid UserId { get; set; }
 }

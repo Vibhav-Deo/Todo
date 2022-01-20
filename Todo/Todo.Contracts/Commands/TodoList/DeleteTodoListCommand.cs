@@ -1,6 +1,5 @@
-﻿namespace Todo.Contracts.Commands.TodoList
+﻿namespace Todo.Contracts.Commands.TodoList;
+
+public class DeleteTodoListCommand
 {
-    public class DeleteTodoListCommand
-    {
-    }
 }

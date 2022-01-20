@@ -1,9 +1,8 @@
-﻿using Todo.Contracts.Enums;
+﻿namespace Todo.Backend.User.Services.RequestResponse;
 
-namespace Todo.Backend.User.Services.RequestResponse
+using global::Todo.Contracts.Enums;
+
+public class GetUserRoleByEmailResponse
 {
-    public class GetUserRoleByEmailResponse
-    {
-        public UserRoles Role { get; set; }
-    }
+    public UserRoles Role { get; set; }
 }

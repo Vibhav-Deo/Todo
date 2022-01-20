@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using Todo.Database.Models;
+﻿namespace Todo.Backend.TodoList.Repositories.Dtos;
 
-namespace Todo.Backend.TodoList.Repositories.Dtos
+using System.Collections.Generic;
+using global::Todo.Database.Models;
+
+public class CreatedTodoListItemsDto
 {
-    public class CreatedTodoListItemsDto
-    {
-        public IList<TodoListItem> TodoListItems { get; set; }
-    }
+    public IList<TodoListItem> TodoListItems { get; set; }
 }

@@ -1,6 +1,5 @@
-﻿namespace Todo.Contracts.Commands.User
+﻿namespace Todo.Contracts.Commands.User;
+
+public class UpdateUserCommand
 {
-    public class UpdateUserCommand
-    {
-    }
 }

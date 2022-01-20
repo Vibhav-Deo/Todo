@@ -1,9 +1,8 @@
-﻿using System;
+﻿namespace Todo.Contracts.Commands;
+
+using System;
 using MassTransit;
 
-namespace Todo.Contracts.Commands
+public interface IBaseCommand : CorrelatedBy<Guid>
 {
-    public interface IBaseCommand : CorrelatedBy<Guid>
-    {
-    }
 }

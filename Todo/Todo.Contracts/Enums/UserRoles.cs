@@ -1,8 +1,7 @@
-﻿namespace Todo.Contracts.Enums
+﻿namespace Todo.Contracts.Enums;
+
+public enum UserRoles
 {
-    public enum UserRoles
-    {
-        Admin = 1,
-        NormalUser = 2
-    }
+    Admin = 1,
+    NormalUser = 2
 }

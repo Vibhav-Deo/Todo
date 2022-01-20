@@ -1,7 +1,6 @@
-﻿namespace Todo.Backend.User.Services.RequestResponse
+﻿namespace Todo.Backend.User.Services.RequestResponse;
+
+public class CheckUserCredentialsResponse
 {
-    public class CheckUserCredentialsResponse
-    {
-        public bool isValid { get; set; }
-    }
+    public bool isValid { get; set; }
 }

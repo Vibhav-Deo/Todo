@@ -9,7 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Backend", "Todo\Todo.B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Contracts", "Todo\Todo.Contracts\Todo.Contracts.csproj", "{3E7CF991-A500-460D-BE40-132E113CD62F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Database", "Todo\Todo.Database\Todo.Database.csproj", "{31D69B70-14D0-46FB-9BAF-C3FDECD71F53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Database", "Todo\Todo.Database\Todo.Database.csproj", "{31D69B70-14D0-46FB-9BAF-C3FDECD71F53}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{19283227-5A56-4CF1-A51F-8C0E4234A67E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

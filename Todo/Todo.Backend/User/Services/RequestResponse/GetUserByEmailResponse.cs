@@ -1,9 +1,8 @@
-﻿namespace Todo.Backend.User.Services
-{
-    using Models = global::Todo.Database.Models;
+﻿namespace Todo.Backend.User.Services.RequestResponse;
 
-    public class GetUserByEmailResponse
-    {
-        public Models.User User { get; set; }
-    }
+using Models = global::Todo.Database.Models;
+
+public class GetUserByEmailResponse
+{
+    public Models.User User { get; set; }
 }

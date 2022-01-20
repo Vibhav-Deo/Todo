@@ -1,9 +1,8 @@
-﻿namespace Todo.Contracts.Enums
+﻿namespace Todo.Contracts.Enums;
+
+public enum TodoListItemStatus
 {
-    public enum TodoListItemStatus
-    {
-        Created = 1,
-        Completed = 2,
-        Pending = 3,
-    }
+    Created = 1,
+    Completed = 2,
+    Pending = 3,
 }

@@ -1,11 +1,10 @@
-﻿using System;
+﻿namespace Todo.Web.RequestResponse.Token;
 
-namespace Todo.Web.RequestResponse.Token
+using System;
+
+public class RefreshTokenResponse
 {
-    public class RefreshTokenResponse
-    {
-        public string Email { get; set; }
-        public string TokenString { get; set; }
-        public DateTime ExpireAt { get; set; }
-    }
+    public string Email { get; set; }
+    public string TokenString { get; set; }
+    public DateTime ExpireAt { get; set; }
 }
