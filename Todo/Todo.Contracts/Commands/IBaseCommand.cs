@@ -1,13 +1,8 @@
-﻿using MassTransit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Todo.Contracts.Commands;
 
-namespace Todo.Contracts.Commands
+using System;
+using MassTransit;
+
+public interface IBaseCommand : CorrelatedBy<Guid>
 {
-    public interface IBaseCommand: CorrelatedBy<Guid>
-    {
-    }
 }

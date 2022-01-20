@@ -1,10 +1,8 @@
-﻿using MassTransit;
-using System;
-using Todo.Contracts.Enums;
+﻿namespace Todo.Contracts.Events;
 
-namespace Todo.Contracts.Events
+using System;
+using MassTransit;
+
+public interface IBaseEvent : CorrelatedBy<Guid>
 {
-    public interface IBaseEvent : CorrelatedBy<Guid>
-    {
-    }
 }

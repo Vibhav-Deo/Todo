@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Models = Todo.Database.Models;
+﻿namespace Todo.Backend.User.Services.RequestResponse;
 
-namespace Todo.Backend.User.Services.RequestResponse
+using Models = global::Todo.Database.Models;
+
+public class GetUserByIdResponse
 {
-    public class GetUserByIdResponse
-    {
-        public Models.User User { get; set; }
-    }
+    public Models.User User { get; set; }
 }

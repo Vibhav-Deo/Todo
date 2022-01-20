@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Todo.Web.RequestResponse.Token;
+
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Todo.Web.RequestResponse.Token
+public class RefreshTokenRequest
 {
-    public class RefreshTokenRequest
-    {
 
-        [Required]
-        public string RefreshToken { get; set; }
-    }
+    [Required]
+    public string RefreshToken { get; set; }
 }

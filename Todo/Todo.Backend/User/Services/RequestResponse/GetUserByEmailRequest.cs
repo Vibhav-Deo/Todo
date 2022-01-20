@@ -1,7 +1,6 @@
-﻿namespace Todo.Backend.User.Services
+﻿namespace Todo.Backend.User.Services.RequestResponse;
+
+public class GetUserByEmailRequest
 {
-    public class GetUserByEmailRequest
-    {
-        public string Email { get; set; }
-    }
+    public string Email { get; set; }
 }

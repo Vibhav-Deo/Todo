@@ -1,61 +1,57 @@
-﻿using MassTransit;
-using Microsoft.Extensions.Logging;
+﻿namespace Todo.Backend.User.EventConsumer;
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Todo.Contracts.Events.User;
-using Todo.Database.Cosmos;
+using global::Todo.Contracts.Events.User;
+using global::Todo.Database.Cosmos;
+using MassTransit;
+using Microsoft.Extensions.Logging;
 
-namespace Todo.Backend.User.EventConsumer
+public class UserEventConsumer : IConsumer<UserCreatedEvent>, IConsumer<UserDeletedEvent>, IConsumer<UserUpdatedEvent>
 {
-    public class UserEventConsumer : IConsumer<UserCreatedEvent>, IConsumer<UserDeletedEvent>, IConsumer<UserUpdatedEvent>
+    private readonly ILogger<UserEventConsumer> _logger;
+    private readonly CosmosDbContext _cosmosDbContext;
+    public UserEventConsumer(ILogger<UserEventConsumer> logger, CosmosDbContext cosmosDbContext)
     {
-        private readonly ILogger<UserEventConsumer> _logger;
-        private readonly CosmosDbContext _cosmosDbContext;
-        public UserEventConsumer(ILogger<UserEventConsumer> logger, CosmosDbContext cosmosDbContext)
+        _logger = logger;
+        _cosmosDbContext = cosmosDbContext;
+    }
+    public async Task Consume(ConsumeContext<UserCreatedEvent> context)
+    {
+        try
         {
-            _logger = logger;
-            _cosmosDbContext = cosmosDbContext;
+            var @event = context.Message;
+            var response = await _cosmosDbContext.CreateItemAsync(@event);
         }
-        public async Task Consume(ConsumeContext<UserCreatedEvent> context)
+        catch (Exception exception)
         {
-            try
-            {
-                var @event = context.Message;
-                var response = await _cosmosDbContext.CreateItemAsync(@event);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Failed to consume " + nameof(UserCreatedEvent));
-            }
+            _logger.LogError(exception, "Failed to consume " + nameof(UserCreatedEvent));
         }
+    }
 
-        public async Task Consume(ConsumeContext<UserDeletedEvent> context)
+    public async Task Consume(ConsumeContext<UserDeletedEvent> context)
+    {
+        try
         {
-            try
-            {
-                var @event = context.Message;
-                var response = await _cosmosDbContext.CreateItemAsync(@event);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Failed to consume " + nameof(UserDeletedEvent));
-            }
+            var @event = context.Message;
+            var response = await _cosmosDbContext.CreateItemAsync(@event);
         }
-
-        public async Task Consume(ConsumeContext<UserUpdatedEvent> context)
+        catch (Exception exception)
         {
-            try
-            {
-                var @event = context.Message;
-                var response = await _cosmosDbContext.CreateItemAsync(@event);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, "Failed to consume " + nameof(UserUpdatedEvent));
-            }
+            _logger.LogError(exception, "Failed to consume " + nameof(UserDeletedEvent));
+        }
+    }
+
+    public async Task Consume(ConsumeContext<UserUpdatedEvent> context)
+    {
+        try
+        {
+            var @event = context.Message;
+            var response = await _cosmosDbContext.CreateItemAsync(@event);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to consume " + nameof(UserUpdatedEvent));
         }
     }
 }

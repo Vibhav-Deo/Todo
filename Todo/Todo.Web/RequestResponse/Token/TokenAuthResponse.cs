@@ -1,13 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace Todo.Web.RequestResponse.Token;
 
-namespace Todo.Web.RequestResponse.Token
+using System.Text.Json.Serialization;
+
+public class TokenAuthResponse
 {
-    public class TokenAuthResponse
-    {
-        [JsonPropertyName("accessToken")]
-        public string AccessToken { get; set; }
+    [JsonPropertyName("accessToken")]
+    public string AccessToken { get; set; }
 
-        [JsonPropertyName("refreshToken")]
-        public RefreshTokenResponse RefreshToken { get; set; }
-    }
+    [JsonPropertyName("refreshToken")]
+    public RefreshTokenResponse RefreshToken { get; set; }
 }
