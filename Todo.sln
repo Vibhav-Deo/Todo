@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31402.337
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Web", "Todo.Web\Todo.Web.csproj", "{D8524CCA-E233-43D0-9B83-7CE20D4E8245}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Web", "Todo\Todo.Web\Todo.Web.csproj", "{D8524CCA-E233-43D0-9B83-7CE20D4E8245}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Backend", "Todo.Backend\Todo.Backend.csproj", "{16AD3CEE-2EB5-41F2-813C-8AB579F51F42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Backend", "Todo\Todo.Backend\Todo.Backend.csproj", "{16AD3CEE-2EB5-41F2-813C-8AB579F51F42}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Contracts", "Todo.Contracts\Todo.Contracts.csproj", "{3E7CF991-A500-460D-BE40-132E113CD62F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Todo.Contracts", "Todo\Todo.Contracts\Todo.Contracts.csproj", "{3E7CF991-A500-460D-BE40-132E113CD62F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Database", "Todo.Database\Todo.Database.csproj", "{31D69B70-14D0-46FB-9BAF-C3FDECD71F53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Todo.Database", "Todo\Todo.Database\Todo.Database.csproj", "{31D69B70-14D0-46FB-9BAF-C3FDECD71F53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
