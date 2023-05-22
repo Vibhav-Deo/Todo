@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
-using global::Todo.Backend.TodoList.Repositories.Write;
-using global::Todo.Contracts.Commands.TodoList;
-using global::Todo.Contracts.Events.TodoList;
-using global::Todo.Contracts.Exceptions;
-using global::Todo.Contracts.StringResources;
+using Todo.Backend.TodoList.Repositories.Write;
+using Todo.Contracts.Commands.TodoList;
+using Todo.Contracts.Events.TodoList;
+using Todo.Contracts.Exceptions;
+using Todo.Contracts.StringResources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
